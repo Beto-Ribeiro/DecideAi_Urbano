@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { adminLogin, adminLogout, addChapa, deleteChapa, resetElection, toggleElectionStatus } from '../actions';
-import { Lock, LogOut, BarChart3, Users, Award, PlusCircle, X, Trash2, RefreshCw, Power, LayoutDashboard, Search, CheckCircle2, XCircle } from 'lucide-react';
+import { Lock, LogOut, BarChart3, Users, Award, PlusCircle, X, Trash2, RefreshCw, Power, LayoutDashboard, Search, CheckCircle2, XCircle, Vote } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const COLORS = ['#2563eb', '#16a34a', '#eab308', '#dc2626', '#9333ea', '#db2777', '#f97316'];
