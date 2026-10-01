@@ -6,7 +6,12 @@ import { cookies, headers } from 'next/headers';
 
 export async function loginAluno(ra: string, digito: string) {
     if (!ra || !digito) {
-        return { error: 'Preencha o RA e o Dígito.' };
+        return { error: 'Preencha o RA e o DÃ­gito.' };
+    }
+
+    const { data: config } = await supabase.from('configuracoes').select('status').eq('id', 1).single();
+    if (config?.status === 'finalizada') {
+        return { error: 'Eleição encerrada! Não é mais possível votar.' };
     }
 
     const { data: aluno, error: alunoError } = await supabase
@@ -18,7 +23,7 @@ export async function loginAluno(ra: string, digito: string) {
         .single();
 
     if (alunoError || !aluno) {
-        return { error: 'Aluno não encontrado ou não está ativo.' };
+        return { error: 'Aluno nÃ£o encontrado ou nÃ£o estÃ¡ ativo.' };
     }
     
     // Convert to camelCase to match the old Aluno interface if needed for the frontend
@@ -29,7 +34,7 @@ export async function loginAluno(ra: string, digito: string) {
         ra: aluno.ra
     };
 
-    // Verificar se já votou
+    // Verificar se jÃ¡ votou
     const { data: jaVotou, error: checkError } = await supabase
         .from('alunos_votaram')
         .select('ra')
@@ -37,10 +42,10 @@ export async function loginAluno(ra: string, digito: string) {
         .single();
     
     if (jaVotou) {
-        return { error: 'Este RA já registrou um voto.' };
+        return { error: 'Este RA jÃ¡ registrou um voto.' };
     }
 
-    // Retorna os dados do aluno para confirmação
+    // Retorna os dados do aluno para confirmaÃ§Ã£o
     return { success: true, aluno: alunoData };
 }
 
@@ -56,7 +61,7 @@ export async function submitVote(
         return { error: 'Dados incompletos para registrar o voto.' };
     }
 
-    // Double check se já votou
+    // Double check se jÃ¡ votou
     const { data: jaVotou } = await supabase
         .from('alunos_votaram')
         .select('ra')
@@ -64,7 +69,7 @@ export async function submitVote(
         .single();
     
     if (jaVotou) {
-        return { error: 'Este RA já registrou um voto.' };
+        return { error: 'Este RA jÃ¡ registrou um voto.' };
     }
 
     // Capturar IP e User Agent
@@ -77,12 +82,12 @@ export async function submitVote(
         ip = forwardedFor.split(',')[0].trim();
     } else {
         // Fallback for getting IP if x-forwarded-for is not present
-        ip = headersList.get('x-real-ip') || 'IP não disponível';
+        ip = headersList.get('x-real-ip') || 'IP nÃ£o disponÃ­vel';
     }
 
     const userAgent = headersList.get('user-agent') || 'Desconhecido';
 
-    // Salvar o registro do aluno que votou (imutável por PK)
+    // Salvar o registro do aluno que votou (imutÃ¡vel por PK)
     const { error: errorAluno } = await supabase
         .from('alunos_votaram')
         .insert({
@@ -96,7 +101,7 @@ export async function submitVote(
         return { error: 'Erro ao registrar aluno. Tente novamente.' };
     }
 
-    // Salvar o voto anônimo (separado do RA)
+    // Salvar o voto anÃ´nimo (separado do RA)
     const { error: errorVoto } = await supabase
         .from('votos')
         .insert({
@@ -110,8 +115,8 @@ export async function submitVote(
 
     if (errorVoto) {
         console.error(errorVoto);
-        // Falhou o voto, mas o aluno foi salvo? Idealmente faríamos uma transaction, 
-        // mas supabase js não suporta transactions client-side facilmente sem RPC.
+        // Falhou o voto, mas o aluno foi salvo? Idealmente farÃ­amos uma transaction, 
+        // mas supabase js nÃ£o suporta transactions client-side facilmente sem RPC.
         // Vamos considerar sucesso se gravou aluno, para evitar duplo voto.
     }
 
@@ -145,13 +150,14 @@ export async function getDashboardStats() {
     const { data: chapas } = await supabase.from('chapas').select('*');
     const { data: votos } = await supabase.from('votos').select('*');
     const { data: alunosVotaram } = await supabase.from('alunos_votaram').select('*');
+    const { data: config } = await supabase.from('configuracoes').select('status').eq('id', 1).single();
     
-    return { chapas, votos, alunosVotaram };
+    return { chapas, votos, alunosVotaram, status: config?.status || 'ativa' };
 }
 
 export async function addChapa(nome: string, numero: number | null, descricao: string) {
     const cookieStore = await cookies();
-    if (cookieStore.get('admin_auth')?.value !== 'true') return { error: 'Não autorizado' };
+    if (cookieStore.get('admin_auth')?.value !== 'true') return { error: 'NÃ£o autorizado' };
     
     const { data, error } = await supabase.from('chapas').insert({
         nome,
@@ -161,5 +167,42 @@ export async function addChapa(nome: string, numero: number | null, descricao: s
     
     if (error) return { error: error.message };
     return { success: true };
+}
+
+
+export async function deleteChapa(id: string) {
+    const cookieStore = await cookies();
+    if (cookieStore.get('admin_auth')?.value !== 'true') return { error: 'Não autorizado' };
+    
+    const { error } = await supabase.from('chapas').delete().eq('id', id);
+    if (error) return { error: error.message };
+    return { success: true };
+}
+
+export async function resetElection() {
+    const cookieStore = await cookies();
+    if (cookieStore.get('admin_auth')?.value !== 'true') return { error: 'Não autorizado' };
+    
+    // Delete all votes first
+    await supabase.from('votos').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    // Delete all alunos_votaram
+    await supabase.from('alunos_votaram').delete().neq('ra', 'invalid');
+    // Delete all chapas
+    await supabase.from('chapas').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    
+    // Reset status para ativa
+    await supabase.from('configuracoes').update({ status: 'ativa' }).eq('id', 1);
+    
+    return { success: true };
+}
+
+export async function toggleElectionStatus(currentStatus: string) {
+    const cookieStore = await cookies();
+    if (cookieStore.get('admin_auth')?.value !== 'true') return { error: 'Não autorizado' };
+    
+    const newStatus = currentStatus === 'ativa' ? 'finalizada' : 'ativa';
+    const { error } = await supabase.from('configuracoes').update({ status: newStatus }).eq('id', 1);
+    if (error) return { error: error.message };
+    return { success: true, status: newStatus };
 }
 

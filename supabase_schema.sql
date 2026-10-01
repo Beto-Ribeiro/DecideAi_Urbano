@@ -69,3 +69,16 @@ CREATE POLICY "Permitir leitura de votos" ON public.votos FOR SELECT USING (true
 CREATE POLICY "Permitir delecao de votos" ON public.votos FOR DELETE USING (true);
 CREATE POLICY "Permitir delecao de alunos_votaram" ON public.alunos_votaram FOR DELETE USING (true);
 CREATE POLICY "Permitir atualizar chapas" ON public.chapas FOR ALL USING (true);
+
+-- Tabela de Configuracoes da Eleicao
+CREATE TABLE IF NOT EXISTS public.configuracoes (
+    id integer PRIMARY KEY DEFAULT 1,
+    status text NOT NULL DEFAULT 'ativa'
+);
+
+INSERT INTO public.configuracoes (id, status) VALUES (1, 'ativa') ON CONFLICT (id) DO NOTHING;
+
+ALTER TABLE public.configuracoes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir leitura de configuracoes" ON public.configuracoes FOR SELECT USING (true);
+CREATE POLICY "Permitir update de configuracoes" ON public.configuracoes FOR UPDATE USING (true);
+
