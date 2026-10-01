@@ -149,3 +149,17 @@ export async function getDashboardStats() {
     return { chapas, votos, alunosVotaram };
 }
 
+export async function addChapa(nome: string, numero: number | null, descricao: string) {
+    const cookieStore = await cookies();
+    if (cookieStore.get('admin_auth')?.value !== 'true') return { error: 'Não autorizado' };
+    
+    const { data, error } = await supabase.from('chapas').insert({
+        nome,
+        numero,
+        descricao
+    });
+    
+    if (error) return { error: error.message };
+    return { success: true };
+}
+
