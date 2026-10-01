@@ -175,14 +175,24 @@ export async function getDashboardStats() {
     return { chapas, votos, alunosVotaram, status: config?.status || 'ativa', todosAlunos };
 }
 
-export async function addChapa(nome: string, numero: number | null, descricao: string) {
+export async function addChapa(
+    nome: string, 
+    numero: number | null, 
+    descricao: string,
+    logoUrl: string | null,
+    propostasUrl: string | null,
+    integrantes: any[]
+) {
     const cookieStore = await cookies();
-    if (cookieStore.get('admin_auth')?.value !== 'true') return { error: 'NÃ£o autorizado' };
+    if (cookieStore.get('admin_auth')?.value !== 'true') return { error: 'Não autorizado' };
     
     const { data, error } = await supabase.from('chapas').insert({
         nome,
         numero,
-        descricao
+        descricao,
+        logo_url: logoUrl,
+        propostas_url: propostasUrl,
+        integrantes
     });
     
     if (error) return { error: error.message };

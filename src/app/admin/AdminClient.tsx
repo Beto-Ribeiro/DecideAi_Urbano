@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { adminLogin, adminLogout, addChapa, deleteChapa, resetElection, toggleElectionStatus } from '../actions';
-import { Lock, LogOut, BarChart3, Users, Award, PlusCircle, X, Trash2, RefreshCw, Power, LayoutDashboard, Search, CheckCircle2, XCircle, Vote } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { Lock, LogOut, BarChart3, Users, Award, PlusCircle, X, Trash2, RefreshCw, Power, LayoutDashboard, Search, CheckCircle2, XCircle, Vote, FileText, Download, Building2 } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const COLORS = ['#2563eb', '#16a34a', '#eab308', '#dc2626', '#9333ea', '#db2777', '#f97316'];
@@ -14,12 +15,26 @@ export default function AdminClient({ isAuthenticated, initialStats }: { isAuthe
     const [loading, setLoading] = useState(false);
     
     // Tab State
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'eleitores'>('dashboard');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'eleitores' | 'chapas'>('dashboard');
     
     // Modal nova chapa
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [novaChapa, setNovaChapa] = useState({ nome: '', numero: '', descricao: '' });
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [propostasFile, setPropostasFile] = useState<File | null>(null);
+    const [integrantes, setIntegrantes] = useState<{nome: string, cargo: string, turma: string}[]>([]);
     
+    // Form handlers
+    const addIntegrante = () => setIntegrantes([...integrantes, {nome: '', cargo: '', turma: ''}]);
+    const updateIntegrante = (index: number, field: string, value: string) => {
+        const newIntegrantes = [...integrantes];
+        newIntegrantes[index] = { ...newIntegrantes[index], [field]: value };
+        setIntegrantes(newIntegrantes);
+    };
+    const removeIntegrante = (index: number) => {
+        setIntegrantes(integrantes.filter((_, i) => i !== index));
+    };
+
     // Modal Aluno Detalhes
     const [selectedAluno, setSelectedAluno] = useState<any>(null);
     
@@ -47,14 +62,42 @@ export default function AdminClient({ isAuthenticated, initialStats }: { isAuthe
     const handleAddChapa = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        const numeroParsed = novaChapa.numero ? parseInt(novaChapa.numero) : null;
-        const res = await addChapa(novaChapa.nome, numeroParsed, novaChapa.descricao);
-        if (res.error) {
-            alert(res.error);
+
+        let logoUrl = null;
+        let propostasUrl = null;
+
+        try {
+            if (logoFile) {
+                const ext = logoFile.name.split('.').pop();
+                const path = `logos/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+                const { error: uploadError } = await supabase.storage.from('chapas').upload(path, logoFile);
+                if (!uploadError) {
+                    logoUrl = supabase.storage.from('chapas').getPublicUrl(path).data.publicUrl;
+                }
+            }
+            if (propostasFile) {
+                const ext = propostasFile.name.split('.').pop();
+                const path = `propostas/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+                const { error: uploadError } = await supabase.storage.from('chapas').upload(path, propostasFile);
+                if (!uploadError) {
+                    propostasUrl = supabase.storage.from('chapas').getPublicUrl(path).data.publicUrl;
+                }
+            }
+
+            const numeroParsed = novaChapa.numero ? parseInt(novaChapa.numero) : null;
+            const res = await addChapa(novaChapa.nome, numeroParsed, novaChapa.descricao, logoUrl, propostasUrl, integrantes);
+            
+            if (res.error) {
+                alert(res.error);
+                setLoading(false);
+            } else {
+                setIsModalOpen(false);
+                window.location.reload();
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao fazer upload dos arquivos.");
             setLoading(false);
-        } else {
-            setIsModalOpen(false);
-            window.location.reload();
         }
     };
     
@@ -113,7 +156,7 @@ export default function AdminClient({ isAuthenticated, initialStats }: { isAuthe
     
     const { chapas, votos, alunosVotaram, todosAlunos } = initialStats || { chapas: [], votos: [], alunosVotaram: [], todosAlunos: [] };
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all'); // all, voted, pending
+    const [statusFilter, setStatusFilter] = useState('all');
     
     const totalVotos = votos?.length || 0;
     
@@ -201,6 +244,12 @@ export default function AdminClient({ isAuthenticated, initialStats }: { isAuthe
                     >
                         <Users size={20} /> Eleitores
                     </button>
+                    <button 
+                        onClick={() => setActiveTab('chapas')} 
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'chapas' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-slate-800 hover:text-white'}`}
+                    >
+                        <Building2 size={20} /> Chapas
+                    </button>
                 </nav>
                 <div className="p-4 border-t border-slate-800">
                     <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 text-slate-400 hover:text-white transition-colors bg-slate-800 px-4 py-3 rounded-xl text-sm font-medium">
@@ -212,10 +261,11 @@ export default function AdminClient({ isAuthenticated, initialStats }: { isAuthe
             {/* Main Content */}
             <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
                 
-                {/* Mobile Menu (Simple) */}
+                {/* Mobile Menu */}
                 <div className="md:hidden flex gap-2 mb-6 overflow-x-auto pb-2">
                     <button onClick={() => setActiveTab('dashboard')} className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap ${activeTab === 'dashboard' ? 'bg-blue-600 text-white' : 'bg-white border text-slate-600'}`}>Dashboard</button>
                     <button onClick={() => setActiveTab('eleitores')} className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap ${activeTab === 'eleitores' ? 'bg-blue-600 text-white' : 'bg-white border text-slate-600'}`}>Eleitores</button>
+                    <button onClick={() => setActiveTab('chapas')} className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap ${activeTab === 'chapas' ? 'bg-blue-600 text-white' : 'bg-white border text-slate-600'}`}>Chapas</button>
                     <button onClick={handleLogout} className="px-4 py-2 rounded-lg font-medium whitespace-nowrap bg-red-100 text-red-600 ml-auto">Sair</button>
                 </div>
 
@@ -223,7 +273,9 @@ export default function AdminClient({ isAuthenticated, initialStats }: { isAuthe
                     {/* Header Top Actions */}
                     <header className="flex flex-col sm:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                         <div>
-                            <h1 className="text-2xl font-bold text-slate-800">{activeTab === 'dashboard' ? 'Dashboard Geral' : 'Gestão de Eleitores'}</h1>
+                            <h1 className="text-2xl font-bold text-slate-800">
+                                {activeTab === 'dashboard' ? 'Dashboard Geral' : activeTab === 'eleitores' ? 'Gestão de Eleitores' : 'Gestão de Chapas'}
+                            </h1>
                             <p className="text-slate-500 text-sm mt-1">Status: <strong className={statusEleicao === 'ativa' ? 'text-green-600 uppercase' : 'text-red-600 uppercase'}>{statusEleicao}</strong></p>
                         </div>
                         <div className="flex flex-wrap gap-3 mt-4 sm:mt-0 items-center">
@@ -257,34 +309,7 @@ export default function AdminClient({ isAuthenticated, initialStats }: { isAuthe
                                 </div>
                             )}
 
-                            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                                {/* Chapas Card */}
-                                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-[400px]">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">Chapas</h3>
-                                        <button onClick={() => setIsModalOpen(true)} className="text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1 text-sm font-medium">
-                                            <PlusCircle size={16} /> Adicionar
-                                        </button>
-                                    </div>
-                                    <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3">
-                                        {votosPorChapa?.length === 0 ? (
-                                            <p className="text-slate-400 text-sm text-center py-4">Nenhuma chapa cadastrada.</p>
-                                        ) : (
-                                            votosPorChapa?.map((chapa: any) => (
-                                                <div key={chapa.id} className="p-4 bg-slate-50 border border-slate-100 rounded-xl flex justify-between items-center group">
-                                                    <div>
-                                                        <p className="font-bold text-slate-800 text-sm">{chapa.nome}</p>
-                                                        <p className="text-xs text-slate-500">{chapa.totalVotos} votos</p>
-                                                    </div>
-                                                    <button onClick={() => handleDeleteChapa(chapa.id, chapa.nome)} className="text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100" title="Excluir Chapa">
-                                                        <Trash2 size={18} />
-                                                    </button>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                </div>
-
+                            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6">
                                 {/* Votos Bar Chart */}
                                 <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-[400px]">
                                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
@@ -297,9 +322,32 @@ export default function AdminClient({ isAuthenticated, initialStats }: { isAuthe
                                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
                                                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
                                                 <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
-                                                <Bar dataKey="Votos" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={30} />
+                                                <Bar dataKey="Votos" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={40} />
                                             </BarChart>
                                         </ResponsiveContainer>
+                                    </div>
+                                </div>
+
+                                {/* Salas por chapa - Stacked */}
+                                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-[400px]">
+                                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">Salas que mais votaram em cada chapa</h3>
+                                    <div className="flex-1 w-full">
+                                        {turmasUnicas.length > 0 ? (
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <BarChart data={turmasPorChapaData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                                                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                                                    <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
+                                                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{fontSize: '12px'}} />
+                                                    {turmasUnicas.map((turma, index) => (
+                                                        <Bar key={turma} dataKey={turma} stackId="a" fill={TURMA_COLORS[index % TURMA_COLORS.length]} />
+                                                    ))}
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        ) : (
+                                            <div className="h-full flex items-center justify-center text-slate-400 text-sm">Sem dados suficientes</div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -324,7 +372,7 @@ export default function AdminClient({ isAuthenticated, initialStats }: { isAuthe
                                 </div>
                                 
                                 {/* Idade Media Bar Chart */}
-                                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-[400px] xl:col-span-1">
+                                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-[400px]">
                                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">Idade Média dos Eleitores</h3>
                                     <div className="flex-1 w-full">
                                         <ResponsiveContainer width="100%" height="100%">
@@ -333,35 +381,11 @@ export default function AdminClient({ isAuthenticated, initialStats }: { isAuthe
                                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
                                                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
                                                 <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
-                                                <Bar dataKey="Idade Média" fill="#10b981" radius={[4, 4, 0, 0]} barSize={30} />
+                                                <Bar dataKey="Idade Média" fill="#10b981" radius={[4, 4, 0, 0]} barSize={40} />
                                             </BarChart>
                                         </ResponsiveContainer>
                                     </div>
                                 </div>
-
-                                {/* Salas por chapa - Stacked */}
-                                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-[400px] xl:col-span-2">
-                                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">Salas que mais votaram em cada chapa</h3>
-                                    <div className="flex-1 w-full">
-                                        {turmasUnicas.length > 0 ? (
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <BarChart data={turmasPorChapaData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
-                                                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
-                                                    <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
-                                                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{fontSize: '12px'}} />
-                                                    {turmasUnicas.map((turma, index) => (
-                                                        <Bar key={turma} dataKey={turma} stackId="a" fill={TURMA_COLORS[index % TURMA_COLORS.length]} />
-                                                    ))}
-                                                </BarChart>
-                                            </ResponsiveContainer>
-                                        ) : (
-                                            <div className="h-full flex items-center justify-center text-slate-400 text-sm">Sem dados suficientes</div>
-                                        )}
-                                    </div>
-                                </div>
-
                             </div>
                         </>
                     )}
@@ -447,33 +471,157 @@ export default function AdminClient({ isAuthenticated, initialStats }: { isAuthe
                             </div>
                         </div>
                     )}
+
+                    {activeTab === 'chapas' && (
+                        <div className="space-y-6">
+                            <div className="flex justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                                <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                    <Building2 size={24} className="text-blue-600" /> Chapas Cadastradas
+                                </h2>
+                                <button onClick={() => setIsModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white transition-colors flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium shadow-lg shadow-blue-200">
+                                    <PlusCircle size={18} /> Adicionar Chapa
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {votosPorChapa?.length === 0 ? (
+                                    <div className="col-span-full bg-white rounded-3xl p-12 text-center border border-slate-100">
+                                        <Building2 size={48} className="mx-auto text-slate-300 mb-4" />
+                                        <h3 className="text-lg font-bold text-slate-700 mb-1">Nenhuma Chapa Cadastrada</h3>
+                                        <p className="text-slate-500">Cadastre a primeira chapa para dar início às eleições.</p>
+                                    </div>
+                                ) : (
+                                    votosPorChapa?.map((chapa: any) => (
+                                        <div key={chapa.id} className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+                                            <div className="p-6 flex-1">
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <div className="flex items-center gap-4">
+                                                        {chapa.logo_url ? (
+                                                            <img src={chapa.logo_url} alt={`Logo ${chapa.nome}`} className="w-16 h-16 rounded-full object-cover border border-slate-200" />
+                                                        ) : (
+                                                            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl">
+                                                                {chapa.nome.substring(0,2).toUpperCase()}
+                                                            </div>
+                                                        )}
+                                                        <div>
+                                                            <h3 className="font-bold text-lg text-slate-800">{chapa.nome}</h3>
+                                                            {chapa.numero && <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">Nº {chapa.numero}</span>}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                {chapa.descricao && (
+                                                    <p className="text-slate-500 text-sm mb-4 line-clamp-3">{chapa.descricao}</p>
+                                                )}
+
+                                                <div className="space-y-2 mb-4">
+                                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Integrantes ({chapa.integrantes?.length || 0})</h4>
+                                                    {chapa.integrantes && chapa.integrantes.length > 0 ? (
+                                                        <div className="space-y-1">
+                                                            {chapa.integrantes.slice(0, 3).map((integ: any, idx: number) => (
+                                                                <div key={idx} className="text-sm flex justify-between">
+                                                                    <span className="text-slate-700 font-medium truncate max-w-[120px]">{integ.nome}</span>
+                                                                    <div className="flex gap-2">
+                                                                        <span className="text-slate-500 text-xs bg-slate-100 px-1.5 rounded">{integ.cargo}</span>
+                                                                        <span className="text-slate-500 text-xs bg-slate-100 px-1.5 rounded">{integ.turma}</span>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                            {chapa.integrantes.length > 3 && (
+                                                                <p className="text-xs text-blue-500 mt-1">+{chapa.integrantes.length - 3} integrantes...</p>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-xs text-slate-400">Nenhum integrante cadastrado.</p>
+                                                    )}
+                                                </div>
+
+                                                {chapa.propostas_url && (
+                                                    <a href={chapa.propostas_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 hover:underline">
+                                                        <FileText size={16} /> Ver arquivo de propostas
+                                                    </a>
+                                                )}
+                                            </div>
+                                            <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+                                                <div className="text-sm font-semibold text-slate-600">
+                                                    Votos: {chapa.totalVotos}
+                                                </div>
+                                                <button onClick={() => handleDeleteChapa(chapa.id, chapa.nome)} className="text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors" title="Excluir Chapa">
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </main>
 
             {/* Modal de Adicionar Chapa */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-                        <div className="flex justify-between items-center p-6 border-b border-slate-100">
+                <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+                    <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden my-8">
+                        <div className="flex justify-between items-center p-6 border-b border-slate-100 sticky top-0 bg-white z-10">
                             <h3 className="text-lg font-bold text-slate-800">Cadastrar Nova Chapa</h3>
-                            <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+                            <button type="button" onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
                         </div>
-                        <form onSubmit={handleAddChapa} className="p-6 space-y-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-1">Nome da Chapa *</label>
-                                <input type="text" required value={novaChapa.nome} onChange={e => setNovaChapa({...novaChapa, nome: e.target.value})} className="w-full text-slate-800 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                        <form onSubmit={handleAddChapa} className="p-6 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-1">Nome da Chapa *</label>
+                                    <input type="text" required value={novaChapa.nome} onChange={e => setNovaChapa({...novaChapa, nome: e.target.value})} className="w-full text-slate-800 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-1">Número (Opcional)</label>
+                                    <input type="number" value={novaChapa.numero} onChange={e => setNovaChapa({...novaChapa, numero: e.target.value})} className="w-full text-slate-800 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-semibold text-slate-700 mb-1">Descrição Breve</label>
+                                    <textarea rows={2} value={novaChapa.descricao} onChange={e => setNovaChapa({...novaChapa, descricao: e.target.value})} className="w-full text-slate-800 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none" />
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-1">Número (Opcional)</label>
-                                <input type="number" value={novaChapa.numero} onChange={e => setNovaChapa({...novaChapa, numero: e.target.value})} className="w-full text-slate-800 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-1">Logo da Chapa (Imagem)</label>
+                                    <input type="file" accept="image/*" onChange={e => setLogoFile(e.target.files?.[0] || null)} className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-1">Arquivo de Propostas (PDF, DOC)</label>
+                                    <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={e => setPropostasFile(e.target.files?.[0] || null)} className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                                </div>
                             </div>
+
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-1">Descrição</label>
-                                <textarea rows={3} value={novaChapa.descricao} onChange={e => setNovaChapa({...novaChapa, descricao: e.target.value})} className="w-full text-slate-800 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none" />
+                                <div className="flex justify-between items-center mb-2">
+                                    <label className="block text-sm font-semibold text-slate-700">Integrantes da Chapa</label>
+                                    <button type="button" onClick={addIntegrante} className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                                        <PlusCircle size={14} /> Adicionar
+                                    </button>
+                                </div>
+                                {integrantes.length === 0 ? (
+                                    <p className="text-sm text-slate-400 italic">Nenhum integrante adicionado. Clique acima para adicionar.</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {integrantes.map((intg, idx) => (
+                                            <div key={idx} className="flex gap-2 items-center bg-white p-2 rounded-lg border border-slate-200">
+                                                <input type="text" placeholder="Nome Completo" value={intg.nome} onChange={e => updateIntegrante(idx, 'nome', e.target.value)} required className="flex-1 min-w-0 text-sm px-3 py-1.5 bg-slate-50 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none" />
+                                                <input type="text" placeholder="Cargo (Ex: Pres)" value={intg.cargo} onChange={e => updateIntegrante(idx, 'cargo', e.target.value)} required className="w-24 text-sm px-3 py-1.5 bg-slate-50 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none" />
+                                                <input type="text" placeholder="Turma (Ex: 3A)" value={intg.turma} onChange={e => updateIntegrante(idx, 'turma', e.target.value)} required className="w-24 text-sm px-3 py-1.5 bg-slate-50 border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none" />
+                                                <button type="button" onClick={() => removeIntegrante(idx)} className="text-red-400 hover:text-red-600 p-1">
+                                                    <X size={16} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                            <div className="pt-4">
-                                <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all">
-                                    {loading ? 'Salvando...' : 'Salvar Chapa'}
+
+                            <div className="pt-4 border-t border-slate-100">
+                                <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-lg shadow-blue-200">
+                                    {loading ? 'Fazendo Upload e Salvando...' : 'Salvar Nova Chapa'}
                                 </button>
                             </div>
                         </form>

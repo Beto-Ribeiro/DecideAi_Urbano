@@ -241,24 +241,61 @@ export default function Home() {
                   chapas.map(chapa => (
                     <label 
                       key={chapa.id} 
-                      className={`flex items-center p-5 rounded-2xl border-2 cursor-pointer transition-all ${
+                      className={`flex flex-col p-5 rounded-2xl border-2 cursor-pointer transition-all ${
                         chapaId === chapa.id 
                           ? 'border-blue-600 bg-blue-50/50 shadow-md shadow-blue-100' 
                           : 'border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50'
                       }`}
                     >
-                      <input 
-                        type="radio" 
-                        name="chapa" 
-                        value={chapa.id}
-                        checked={chapaId === chapa.id}
-                        onChange={() => setChapaId(chapa.id)}
-                        className="w-5 h-5 text-blue-600 border-slate-300 focus:ring-blue-500 mr-4"
-                      />
-                      <div>
-                        <div className="font-bold text-lg text-slate-900">{chapa.nome} {chapa.numero && <span className="text-blue-600 bg-blue-100 px-2 py-0.5 rounded-md text-sm ml-2">Nº {chapa.numero}</span>}</div>
-                        {chapa.descricao && <div className="text-sm text-slate-500 mt-1">{chapa.descricao}</div>}
+                      <div className="flex items-start">
+                        <input 
+                          type="radio" 
+                          name="chapa" 
+                          value={chapa.id}
+                          checked={chapaId === chapa.id}
+                          onChange={() => setChapaId(chapa.id)}
+                          className="w-5 h-5 text-blue-600 border-slate-300 focus:ring-blue-500 mr-4 mt-2"
+                        />
+                        <div className="flex-1 flex gap-4">
+                          {chapa.logo_url ? (
+                              <img src={chapa.logo_url} alt={`Logo ${chapa.nome}`} className="w-16 h-16 rounded-full object-cover border border-slate-200 shrink-0" />
+                          ) : (
+                              <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl shrink-0">
+                                  {chapa.nome.substring(0,2).toUpperCase()}
+                              </div>
+                          )}
+                          <div className="flex-1">
+                            <div className="font-bold text-xl text-slate-900 flex items-center gap-2">
+                              {chapa.nome} 
+                              {chapa.numero && <span className="text-blue-600 bg-blue-100 px-2 py-0.5 rounded-md text-sm">Nº {chapa.numero}</span>}
+                            </div>
+                            {chapa.descricao && <div className="text-sm text-slate-500 mt-1">{chapa.descricao}</div>}
+                            
+                            {chapa.propostas_url && (
+                                <a href={chapa.propostas_url} target="_blank" rel="noopener noreferrer" className="inline-block mt-3 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors" onClick={e => e.stopPropagation()}>
+                                    📄 Ver PDF de Propostas
+                                </a>
+                            )}
+                          </div>
+                        </div>
                       </div>
+
+                      {chapaId === chapa.id && chapa.integrantes && chapa.integrantes.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-blue-100 ml-9">
+                          <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Integrantes da Chapa</h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {chapa.integrantes.map((intg: any, idx: number) => (
+                              <div key={idx} className="bg-white px-3 py-2 rounded-lg border border-slate-200 flex flex-col">
+                                <span className="text-sm font-bold text-slate-800">{intg.nome}</span>
+                                <div className="flex justify-between items-center mt-1">
+                                  <span className="text-xs font-medium text-blue-600">{intg.cargo}</span>
+                                  <span className="text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{intg.turma}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </label>
                   ))
                 )}

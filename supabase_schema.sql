@@ -86,3 +86,18 @@ CREATE POLICY "Permitir update de configuracoes" ON public.configuracoes FOR UPD
 -- Adiciona coluna idade na tabela votos
 ALTER TABLE public.votos ADD COLUMN IF NOT EXISTS idade INTEGER;
 
+
+-- Adiciona novas colunas na tabela chapas
+ALTER TABLE public.chapas ADD COLUMN IF NOT EXISTS logo_url TEXT;
+ALTER TABLE public.chapas ADD COLUMN IF NOT EXISTS propostas_url TEXT;
+ALTER TABLE public.chapas ADD COLUMN IF NOT EXISTS integrantes JSONB DEFAULT '[]'::jsonb;
+
+-- Cria bucket de storage para arquivos das chapas
+INSERT INTO storage.buckets (id, name, public) VALUES ('chapas', 'chapas', true) ON CONFLICT (id) DO NOTHING;
+
+-- Cria policies para o bucket (público total para o MVP)
+CREATE POLICY "Permitir leitura publica chapas bucket" ON storage.objects FOR SELECT USING ( bucket_id = 'chapas' );
+CREATE POLICY "Permitir insert publico chapas bucket" ON storage.objects FOR INSERT WITH CHECK ( bucket_id = 'chapas' );
+CREATE POLICY "Permitir update publico chapas bucket" ON storage.objects FOR UPDATE USING ( bucket_id = 'chapas' );
+CREATE POLICY "Permitir delete publico chapas bucket" ON storage.objects FOR DELETE USING ( bucket_id = 'chapas' );
+
