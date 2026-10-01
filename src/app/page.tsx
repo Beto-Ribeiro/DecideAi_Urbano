@@ -65,7 +65,7 @@ export default function Home() {
     setError('');
     setLoading(true);
     
-    const result = await submitVote(ra, aluno.nome, aluno.turma, raca, genero, chapaId);
+    const result = await submitVote(ra, aluno.nome, aluno.turma, raca, genero, chapaId, aluno.dataNascimento);
     
     if (result.error) {
       setError(result.error);
@@ -73,6 +73,31 @@ export default function Home() {
     } else {
       setStep('sucesso');
       setLoading(false);
+      
+      // Toca o som da urna eleitoral
+      try {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContext) {
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = 1800; // Frequência do bipe
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            const now = ctx.currentTime;
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.2, now + 0.05); // Fade in rápido (menor volume)
+            gain.gain.setValueAtTime(0.2, now + 1.2); // Segura 1.2s
+            gain.gain.linearRampToValueAtTime(0, now + 1.3); // Fade out
+            
+            osc.start(now);
+            osc.stop(now + 1.4);
+        }
+      } catch(err) {
+        console.error("Erro ao tocar som da urna", err);
+      }
     }
   };
 

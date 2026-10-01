@@ -82,3 +82,7 @@ ALTER TABLE public.configuracoes ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir leitura de configuracoes" ON public.configuracoes FOR SELECT USING (true);
 CREATE POLICY "Permitir update de configuracoes" ON public.configuracoes FOR UPDATE USING (true);
 
+
+-- Adiciona coluna idade na tabela votos
+ALTER TABLE public.votos ADD COLUMN IF NOT EXISTS idade INTEGER;
+

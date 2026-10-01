@@ -55,7 +55,8 @@ export async function submitVote(
     turma: string,
     raca: string,
     genero: string,
-    chapaId: string
+    chapaId: string,
+    dataNascimento?: string
 ) {
     if (!ra || !chapaId || !raca || !genero) {
         return { error: 'Dados incompletos para registrar o voto.' };
@@ -101,6 +102,21 @@ export async function submitVote(
         return { error: 'Erro ao registrar aluno. Tente novamente.' };
     }
 
+    // Calculate age
+    let idade = null;
+    if (dataNascimento) {
+        const parts = dataNascimento.split('/');
+        if (parts.length === 3) {
+            const birth = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
+            const today = new Date();
+            idade = today.getFullYear() - birth.getFullYear();
+            const m = today.getMonth() - birth.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+                idade--;
+            }
+        }
+    }
+
     // Salvar o voto anÃ´nimo (separado do RA)
     const { error: errorVoto } = await supabase
         .from('votos')
@@ -109,6 +125,7 @@ export async function submitVote(
             raca,
             genero,
             turma,
+            idade,
             ip,
             user_agent: userAgent
         });
@@ -152,7 +169,10 @@ export async function getDashboardStats() {
     const { data: alunosVotaram } = await supabase.from('alunos_votaram').select('*');
     const { data: config } = await supabase.from('configuracoes').select('status').eq('id', 1).single();
     
-    return { chapas, votos, alunosVotaram, status: config?.status || 'ativa' };
+    // Obter todos os alunos para cruzar quem não votou
+    const { data: todosAlunos } = await supabase.from('alunos').select('ra, nome, turma, data_nascimento, situacao').eq('situacao', 'Ativo');
+    
+    return { chapas, votos, alunosVotaram, status: config?.status || 'ativa', todosAlunos };
 }
 
 export async function addChapa(nome: string, numero: number | null, descricao: string) {
