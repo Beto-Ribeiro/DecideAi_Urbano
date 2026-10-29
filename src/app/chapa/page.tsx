@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getChapaSession } from '@/lib/auth';
+import { carregarEstado } from '@/server/store';
 import {
   obterConfiguracaoEscolaAtual,
   obterDadosPortalChapa,
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PortalChapaPage() {
+  await carregarEstado();
   const session = await getChapaSession();
   const escola = obterConfiguracaoEscolaAtual();
   const dados = session ? await obterDadosPortalChapa(session.chapaId) : null;

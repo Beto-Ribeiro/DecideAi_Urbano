@@ -30,7 +30,7 @@ test.describe('DecideAI — E.E. Engenheiro Urbano Alves de Souza Pereira (E2E)'
     await page.goto('/admin');
     await expect(page.getByText('Painel Administrativo')).toBeVisible();
 
-    await page.locator('#admin-password').fill('Urbano@Admin2026!');
+    await page.locator('#admin-password').fill('nsa014266w10@');
     await page.getByRole('button', { name: /Entrar no Painel Administrativo/i }).click();
 
     await expect(page.getByText('Total de Votos na Urna')).toBeVisible();

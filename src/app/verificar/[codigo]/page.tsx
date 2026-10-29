@@ -28,7 +28,7 @@ export default async function VerificarCertificadoPage({
   params: Promise<{ codigo: string }>;
 }) {
   const { codigo } = await params;
-  const resultado = verificarCertificadoPorCodigo(codigo);
+  const resultado = await verificarCertificadoPorCodigo(codigo);
   const escola = resultado.escola || obterConfiguracaoEscolaAtual();
 
   return (

@@ -20,7 +20,9 @@ import {
   LIMITE_MINIMO_K_ANONIMATO,
 } from '@/lib/validations';
 import {
+  carregarEstado,
   getLocalState,
+  saveLocalState,
   listarTodosAlunos,
   obterChapasCompletasDaEleicao,
 } from './store';
@@ -52,6 +54,7 @@ export function obterEleicaoAtiva(): EleicaoRow {
 }
 
 export async function obterDadosPublicosUrna(): Promise<DadosPublicosUrna> {
+  await carregarEstado();
   const state = getLocalState();
   const escola = obterConfiguracaoEscolaAtual();
   const eleicao = obterEleicaoAtiva();
@@ -158,6 +161,7 @@ export interface DashboardAdminAggregated {
 export async function obterDashboardAdminAgregado(
   eleicaoIdOpcional?: string
 ): Promise<DashboardAdminAggregated> {
+  await carregarEstado();
   const state = getLocalState();
   const escola = obterConfiguracaoEscolaAtual();
 
@@ -459,6 +463,7 @@ export async function consultarEleitoresPaginado(params: {
   totalPaginas: number;
   paginaAtual: number;
 }> {
+  await carregarEstado();
   const state = getLocalState();
   const eleicaoId = params.eleicaoId || obterEleicaoAtiva().id;
   const todosAlunos = await listarTodosAlunos();
@@ -575,6 +580,7 @@ export interface DadosPortalChapa {
 export async function obterDadosPortalChapa(
   chapaId: string
 ): Promise<DadosPortalChapa | null> {
+  await carregarEstado();
   const state = getLocalState();
   const chapaRow = state.chapas.find((c) => c.id === chapaId);
   if (!chapaRow) return null;
@@ -738,6 +744,7 @@ export async function obterDadosPortalChapa(
       emitido_por: 'Comissão Eleitoral • E.E. Urbano',
     };
     state.certificados.push(cert);
+    await saveLocalState(state, { silencioso: true });
   }
 
   return {
@@ -770,7 +777,7 @@ export async function obterDadosPortalChapa(
  * Busca pública para verificação de autenticidade de certificado (/verificar/[codigo]).
  * Exibe apenas dados públicos não sensíveis.
  */
-export function verificarCertificadoPorCodigo(codigo: string): {
+export async function verificarCertificadoPorCodigo(codigo: string): Promise<{
   valido: boolean;
   certificado?: CertificadoRow;
   escola?: ConfiguracaoEscola;
@@ -778,7 +785,8 @@ export function verificarCertificadoPorCodigo(codigo: string): {
   chapa?: ChapaCompleta;
   votosChapa?: number;
   percentualValidos?: number;
-} {
+}> {
+  await carregarEstado();
   const state = getLocalState();
   const codLimpo = decodeURIComponent(codigo).trim().toUpperCase();
   const cert = state.certificados.find(

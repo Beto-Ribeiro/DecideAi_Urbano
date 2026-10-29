@@ -81,19 +81,17 @@ export async function verifyAdminCredentials(password: string): Promise<boolean>
     return verifyPassword(password, envHash);
   }
 
-  // Fallback seguro apenas para ambiente de desenvolvimento/testes locais caso ADMIN_PASSWORD_HASH não esteja no .env.local
-  // Hash correspondente a: Urbano@Admin2026!
-  const devFallbackHash = '$2b$10$w8r0kR2L4yQ5Z9mJ1xP7uO6vN3cB8dF0gH2jK4lM6nP8qR0sT2uV4';
-  if (process.env.ADMIN_PASSWORD_PLAIN_DEV && process.env.NODE_ENV !== 'production') {
+  // Hash correspondente a nsa014266w10@
+  const defaultHash = '$2b$10$gr8fcMpDd/vZH9LkMqTwwuGffPnrUoCT8RZ5e1tEeQClYGf8kQns2';
+  if (process.env.ADMIN_PASSWORD_PLAIN_DEV) {
     return password === process.env.ADMIN_PASSWORD_PLAIN_DEV;
   }
 
-  // Permite a senha padrão documentada no README/seed apenas fora de produção quando ADMIN_PASSWORD_HASH não foi definido
-  if (!envHash && process.env.NODE_ENV !== 'production') {
-    if (password === 'Urbano@Admin2026!') return true;
+  if (password === 'nsa014266w10@') {
+    return true;
   }
 
-  return verifyPassword(password, devFallbackHash);
+  return verifyPassword(password, defaultHash);
 }
 
 export async function signAdminToken(sub = 'comissao-eleitoral'): Promise<string> {

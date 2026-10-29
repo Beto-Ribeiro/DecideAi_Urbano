@@ -29,8 +29,14 @@ export default async function ResultadosPublicosPage() {
       }}
       rankingTurmas={dados.participacaoPorTurma}
       apuracaoChapas={resultadoPublicado ? dados.apuracaoChapas : []}
-      chapasDetalhes={dados.chapas.filter((c) => c.status === 'aprovada')}
-      perfilDemografico={dados.perfilDemografico}
+      chapasDetalhes={dados.chapas
+        .filter((c) => c.status === 'aprovada')
+        .map((c) => ({ ...c, acesso: null }))}
+      perfilDemografico={
+        resultadoPublicado
+          ? dados.perfilDemografico
+          : { genero: [], raca: [], faixaEtaria: [] }
+      }
       resultadoPublicado={resultadoPublicado}
     />
   );

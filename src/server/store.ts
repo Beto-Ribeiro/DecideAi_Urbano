@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
-import { getSupabaseServer } from '@/lib/supabase/server';
+import { getSupabaseServer, hasServiceRoleConfigured } from '@/lib/supabase/server';
 import {
   AlunoRow,
   CertificadoRow,
@@ -46,7 +46,16 @@ const committedVotesMemory = new Set<string>();
 let cachedState: LocalDatabaseState | null = null;
 let cachedCsvAlunos: Map<string, AlunoRow> | null = null;
 
+/**
+ * Modo Supabase: ativo quando a SUPABASE_SERVICE_ROLE_KEY está configurada (produção/Vercel).
+ * Nesse modo o banco é a ÚNICA fonte de verdade (sem dados de demonstração nem arquivos locais).
+ */
+export function supabaseAtivo(): boolean {
+  return hasServiceRoleConfigured() && Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL);
+}
+
 function loadAlunosFromCsvFolder(): Map<string, AlunoRow> {
+  if (supabaseAtivo()) return new Map<string, AlunoRow>();
   if (cachedCsvAlunos) return cachedCsvAlunos;
   const map = new Map<string, AlunoRow>();
 
@@ -472,8 +481,37 @@ function createInitialSeedState(): LocalDatabaseState {
   };
 }
 
+function estadoVazio(): LocalDatabaseState {
+  return {
+    configuracoes_escola: {
+      id: 1,
+      nome: ESCOLA_DEFAULT.nome,
+      nome_curto: ESCOLA_DEFAULT.nomeCurto,
+      cidade: ESCOLA_DEFAULT.cidade,
+      diretoria_ensino: ESCOLA_DEFAULT.diretoriaEnsino,
+      assinaturas: ESCOLA_DEFAULT.assinaturas,
+      texto_boas_vindas: ESCOLA_DEFAULT.textoBoasVindas,
+      meta_participacao: ESCOLA_DEFAULT.metaParticipacao,
+    },
+    eleicoes: [],
+    chapas: [],
+    chapa_acessos: [],
+    chapa_integrantes: [],
+    chapa_propostas: [],
+    participacoes: [],
+    votos: [],
+    tentativas_login: [],
+    log_auditoria: [],
+    certificados: [],
+    alunos_extras: [],
+  };
+}
+
 export function getLocalState(): LocalDatabaseState {
   if (cachedState) return cachedState;
+
+  // Modo Supabase: o estado só existe depois de carregarEstado(); nunca usa dados de demonstração
+  if (supabaseAtivo()) return estadoVazio();
 
   try {
     if (fs.existsSync(STATE_FILE_PATH)) {
@@ -492,12 +530,11 @@ export function getLocalState(): LocalDatabaseState {
   }
 
   cachedState = createInitialSeedState();
-  saveLocalState(cachedState);
+  persistirArquivoLocal(cachedState);
   return cachedState;
 }
 
-export function saveLocalState(state: LocalDatabaseState): void {
-  cachedState = state;
+function persistirArquivoLocal(state: LocalDatabaseState): void {
   try {
     const dir = path.dirname(STATE_FILE_PATH);
     if (!fs.existsSync(dir)) {
@@ -505,36 +542,305 @@ export function saveLocalState(state: LocalDatabaseState): void {
     }
     fs.writeFileSync(STATE_FILE_PATH, JSON.stringify(state, null, 2), 'utf-8');
   } catch {
-    // Em ambiente serverless read-only (Vercel), mantém em memória enquanto a instância durar e usa Supabase como fonte primária
+    // Ambiente somente leitura: segue em memória
+  }
+}
+
+// ============================================================================
+// SINCRONIZAÇÃO COM O SUPABASE (fonte da verdade em produção)
+// ============================================================================
+
+const TTL_ESTADO_MS = 2500;
+const PAGINA = 1000;
+let estadoCarregadoEm = 0;
+let carregamentoEmAndamento: Promise<void> | null = null;
+
+type TabelaSync =
+  | 'eleicoes'
+  | 'chapas'
+  | 'chapa_acessos'
+  | 'chapa_integrantes'
+  | 'chapa_propostas'
+  | 'certificados'
+  | 'tentativas_login'
+  | 'log_auditoria';
+
+// Ordem pai -> filho (upsert). A remoção segue a ordem inversa.
+const TABELAS_SYNC: TabelaSync[] = [
+  'eleicoes',
+  'chapas',
+  'chapa_acessos',
+  'chapa_integrantes',
+  'chapa_propostas',
+  'certificados',
+  'tentativas_login',
+  'log_auditoria',
+];
+
+// Snapshot (id -> JSON) do último estado sincronizado, para gravar só o que mudou
+let snapshotSync: Record<string, Map<string, string>> = {};
+let snapshotEscola = '';
+
+const COLUNAS = {
+  eleicoes:
+    'id, nome, status, abre_em, encerra_em, resultado_publicado, mostrar_parcial_para_chapas, desempate_chapa_id, desempate_justificativa, created_at',
+  chapas:
+    'id, eleicao_id, nome, numero, slogan, descricao, cor, logo_url, propostas_url, status, redes_sociais, created_at',
+  chapa_acessos: 'id, chapa_id, usuario, senha_hash, ativo, ultimo_login, created_at',
+  chapa_integrantes: 'id, chapa_id, aluno_ra, nome, cargo, turma, foto_url, ordem',
+  chapa_propostas: 'id, chapa_id, eixo, titulo, descricao, ordem',
+  certificados: 'id, eleicao_id, chapa_id, tipo, codigo_verificacao, emitido_em, emitido_por',
+  tentativas_login: 'id, chave, escopo, sucesso, bloqueado_ate, created_at',
+  log_auditoria: 'id, ator, acao, detalhes, created_at',
+  participacoes: 'eleicao_id, ra, nome, turma, protocolo, created_at',
+  votos: 'id, eleicao_id, chapa_id, tipo, turma, serie, raca, genero, faixa_etaria',
+} as const;
+
+async function buscarTudo<T>(
+  tabela: string,
+  colunas: string,
+  ordenarPor?: { coluna: string; asc: boolean },
+  limite?: number
+): Promise<T[]> {
+  const sb = getSupabaseServer();
+  const resultado: T[] = [];
+  for (let inicio = 0; ; inicio += PAGINA) {
+    let q = sb.from(tabela).select(colunas);
+    if (ordenarPor) q = q.order(ordenarPor.coluna, { ascending: ordenarPor.asc });
+    const { data, error } = await q.range(inicio, inicio + PAGINA - 1);
+    if (error) throw new Error(`Falha ao ler ${tabela}: ${error.message}`);
+    const linhas = (data || []) as unknown as T[];
+    resultado.push(...linhas);
+    if (linhas.length < PAGINA) break;
+    if (limite && resultado.length >= limite) break;
+  }
+  return limite ? resultado.slice(0, limite) : resultado;
+}
+
+function gerarSnapshot(state: LocalDatabaseState): void {
+  snapshotSync = {};
+  for (const t of TABELAS_SYNC) {
+    const m = new Map<string, string>();
+    for (const row of state[t] as Array<{ id: string }>) {
+      m.set(row.id, JSON.stringify(row));
+    }
+    snapshotSync[t] = m;
+  }
+  snapshotEscola = JSON.stringify(state.configuracoes_escola);
+}
+
+async function carregarDoSupabase(): Promise<void> {
+  const [
+    eleicoes,
+    chapas,
+    chapa_acessos,
+    chapa_integrantes,
+    chapa_propostas,
+    certificados,
+    tentativas_login,
+    log_auditoria,
+    participacoes,
+    votos,
+  ] = await Promise.all([
+    buscarTudo<EleicaoRow>('eleicoes', COLUNAS.eleicoes, { coluna: 'created_at', asc: false }),
+    buscarTudo<ChapaRow>('chapas', COLUNAS.chapas),
+    buscarTudo<ChapaAcessoRow>('chapa_acessos', COLUNAS.chapa_acessos),
+    buscarTudo<ChapaIntegranteRow>('chapa_integrantes', COLUNAS.chapa_integrantes),
+    buscarTudo<ChapaPropostaRow>('chapa_propostas', COLUNAS.chapa_propostas),
+    buscarTudo<CertificadoRow>('certificados', COLUNAS.certificados),
+    buscarTudo<TentativaLoginRow>(
+      'tentativas_login',
+      COLUNAS.tentativas_login,
+      { coluna: 'created_at', asc: false },
+      1000
+    ),
+    buscarTudo<LogAuditoriaRow>(
+      'log_auditoria',
+      COLUNAS.log_auditoria,
+      { coluna: 'created_at', asc: false },
+      500
+    ),
+    buscarTudo<ParticipacaoRow>('participacoes', COLUNAS.participacoes),
+    buscarTudo<VotoRow>('votos', COLUNAS.votos),
+  ]);
+
+  const sb = getSupabaseServer();
+  const { data: escolaRow } = await sb
+    .from('configuracoes_escola')
+    .select('id, nome, nome_curto, cidade, diretoria_ensino, assinaturas, texto_boas_vindas, meta_participacao, updated_at')
+    .eq('id', 1)
+    .maybeSingle();
+
+  const base = estadoVazio();
+  const novo: LocalDatabaseState = {
+    ...base,
+    configuracoes_escola: escolaRow
+      ? ({ ...escolaRow, meta_participacao: Number(escolaRow.meta_participacao) } as ConfiguracoesEscolaRow)
+      : base.configuracoes_escola,
+    eleicoes,
+    chapas,
+    chapa_acessos,
+    chapa_integrantes,
+    chapa_propostas,
+    certificados,
+    tentativas_login,
+    log_auditoria,
+    participacoes,
+    votos,
+  };
+
+  // Garante ao menos uma eleição (caso a migração não tenha criado)
+  if (novo.eleicoes.length === 0) {
+    novo.eleicoes.push({
+      id: crypto.randomUUID(),
+      nome: `Eleição do Grêmio Estudantil ${new Date().getFullYear()}`,
+      status: 'rascunho',
+      abre_em: null,
+      encerra_em: null,
+      resultado_publicado: false,
+      mostrar_parcial_para_chapas: false,
+      desempate_chapa_id: null,
+      desempate_justificativa: null,
+      created_at: new Date().toISOString(),
+    });
+    gerarSnapshot({ ...novo, eleicoes: [] });
+    cachedState = novo;
+    await sincronizarComSupabase(novo);
+  } else {
+    cachedState = novo;
+    gerarSnapshot(novo);
+  }
+
+  for (const p of cachedState.participacoes) {
+    committedVotesMemory.add(`${p.eleicao_id}:${p.ra}`);
   }
 }
 
 /**
- * Busca um aluno pelo RA (sem exigir dígito) combinando Supabase + CSVs locais + alunos importados.
+ * Carrega o estado atual do Supabase (cache curto de ~2,5s por instância).
+ * Deve ser chamada no início de toda página/ação do servidor.
+ * `forcar` ignora o cache (usar em login do eleitor e gravação de voto).
+ */
+export async function carregarEstado(forcar = false): Promise<void> {
+  if (!supabaseAtivo()) {
+    getLocalState();
+    return;
+  }
+  const agora = Date.now();
+  if (!forcar && cachedState && agora - estadoCarregadoEm < TTL_ESTADO_MS) return;
+
+  if (!carregamentoEmAndamento) {
+    carregamentoEmAndamento = carregarDoSupabase()
+      .then(() => {
+        estadoCarregadoEm = Date.now();
+      })
+      .finally(() => {
+        carregamentoEmAndamento = null;
+      });
+  }
+  await carregamentoEmAndamento;
+}
+
+async function sincronizarComSupabase(state: LocalDatabaseState): Promise<void> {
+  const sb = getSupabaseServer();
+
+  // 1) Remoções (filhos antes de pais)
+  for (const t of [...TABELAS_SYNC].reverse()) {
+    const atuais = new Set((state[t] as Array<{ id: string }>).map((r) => r.id));
+    const removidos = Array.from((snapshotSync[t] || new Map()).keys()).filter(
+      (id) => !atuais.has(id)
+    );
+    for (let i = 0; i < removidos.length; i += 200) {
+      const { error } = await sb
+        .from(t)
+        .delete()
+        .in('id', removidos.slice(i, i + 200));
+      if (error) throw new Error(`Falha ao remover de ${t}: ${error.message}`);
+    }
+  }
+
+  // 2) Inserções e atualizações (pais antes de filhos)
+  for (const t of TABELAS_SYNC) {
+    const anterior = snapshotSync[t] || new Map<string, string>();
+    const mudaram = (state[t] as Array<{ id: string }>).filter(
+      (row) => anterior.get(row.id) !== JSON.stringify(row)
+    );
+    for (let i = 0; i < mudaram.length; i += 200) {
+      const { error } = await sb.from(t).upsert(mudaram.slice(i, i + 200), { onConflict: 'id' });
+      if (error) throw new Error(`Falha ao gravar em ${t}: ${error.message}`);
+    }
+  }
+
+  // 3) Configurações da escola (linha única)
+  const escolaJson = JSON.stringify(state.configuracoes_escola);
+  if (escolaJson !== snapshotEscola) {
+    const { error } = await sb
+      .from('configuracoes_escola')
+      .upsert({ ...state.configuracoes_escola, id: 1, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+    if (error) throw new Error(`Falha ao gravar configuracoes_escola: ${error.message}`);
+  }
+
+  gerarSnapshot(state);
+}
+
+/**
+ * Persiste o estado. Em produção grava só as linhas alteradas no Supabase.
+ * Votos e participações NUNCA passam por aqui: são gravados exclusivamente pela RPC atômica `registrar_voto`.
+ * Se a sincronização falhar, o cache é descartado (recarrega do banco) e o erro é propagado.
+ */
+export async function saveLocalState(
+  state: LocalDatabaseState,
+  opcoes: { silencioso?: boolean } = {}
+): Promise<void> {
+  cachedState = state;
+  if (!supabaseAtivo()) {
+    persistirArquivoLocal(state);
+    return;
+  }
+  try {
+    await sincronizarComSupabase(state);
+  } catch (err) {
+    cachedState = null;
+    estadoCarregadoEm = 0;
+    if (opcoes.silencioso) {
+      console.warn('Sincronização não crítica falhou:', err);
+      return;
+    }
+    throw err;
+  }
+}
+
+/**
+ * Busca um aluno pelo RA (sem exigir dígito).
+ * Produção: consulta direta no Supabase. Local: CSVs da pasta Alunos + importados + Supabase.
  */
 export async function buscarAlunoPorRa(raNormalizado: string): Promise<AlunoRow | null> {
   const state = getLocalState();
 
-  // 1. Verificar alunos importados recentemente no painel
-  const extra = state.alunos_extras.find(
-    (a) => a.ra === raNormalizado || a.ra.replace(/^0+/, '') === raNormalizado.replace(/^0+/, '')
-  );
-  if (extra) return extra;
+  if (!supabaseAtivo()) {
+    // 1. Verificar alunos importados recentemente no painel
+    const extra = state.alunos_extras.find(
+      (a) => a.ra === raNormalizado || a.ra.replace(/^0+/, '') === raNormalizado.replace(/^0+/, '')
+    );
+    if (extra) return extra;
 
-  // 2. Verificar CSVs locais da pasta Alunos + alunos de teste
-  const csvMap = loadAlunosFromCsvFolder();
-  const fromCsv =
-    csvMap.get(raNormalizado) || csvMap.get(raNormalizado.replace(/^0+/, ''));
-  if (fromCsv) return fromCsv;
+    // 2. Verificar CSVs locais da pasta Alunos + alunos de teste
+    const csvMap = loadAlunosFromCsvFolder();
+    const fromCsv = csvMap.get(raNormalizado) || csvMap.get(raNormalizado.replace(/^0+/, ''));
+    if (fromCsv) return fromCsv;
+  }
 
   // 3. Consultar tabela alunos no Supabase (tentando com e sem zeros à esquerda)
   try {
     const sb = getSupabaseServer();
-    const padded12 = raNormalizado.padStart(12, '0');
+    const semZeros = raNormalizado.replace(/^0+/, '');
+    const candidatos = Array.from(
+      new Set([raNormalizado, semZeros, raNormalizado.padStart(12, '0'), semZeros.padStart(9, '0')])
+    ).filter((c) => c.length > 0);
     const { data } = await sb
       .from('alunos')
       .select('ra, digito_ra, nome, uf_ra, data_nascimento, situacao, turma')
-      .in('ra', [raNormalizado, padded12])
+      .in('ra', candidatos)
       .limit(1);
 
     if (data && data.length > 0) {
@@ -547,10 +853,27 @@ export async function buscarAlunoPorRa(raNormalizado: string): Promise<AlunoRow 
   return null;
 }
 
+let cacheAlunos: { em: number; lista: AlunoRow[] } | null = null;
+
+export function invalidarCacheAlunos(): void {
+  cacheAlunos = null;
+}
+
 /**
  * Retorna a lista consolidada de todos os alunos do colégio eleitoral.
  */
 export async function listarTodosAlunos(): Promise<AlunoRow[]> {
+  if (supabaseAtivo()) {
+    if (cacheAlunos && Date.now() - cacheAlunos.em < 60_000) return cacheAlunos.lista;
+    const lista = await buscarTudo<AlunoRow>(
+      'alunos',
+      'ra, digito_ra, nome, uf_ra, data_nascimento, situacao, turma',
+      { coluna: 'nome', asc: true }
+    );
+    cacheAlunos = { em: Date.now(), lista };
+    return lista;
+  }
+
   const state = getLocalState();
   const csvMap = loadAlunosFromCsvFolder();
   const unik = new Map<string, AlunoRow>();
@@ -604,14 +927,7 @@ export async function registrarAuditoria(
   if (state.log_auditoria.length > 500) {
     state.log_auditoria = state.log_auditoria.slice(0, 500);
   }
-  saveLocalState(state);
-
-  try {
-    const sb = getSupabaseServer();
-    await sb.from('log_auditoria').insert(entry);
-  } catch {
-    // Tabela pode ainda não estar migrada no Supabase remoto
-  }
+  await saveLocalState(state, { silencioso: true });
 }
 
 /**
@@ -662,7 +978,7 @@ export async function verificarRateLimit(params: {
       bloqueado_ate: bloqueadoAte,
       created_at: new Date(agoraMs).toISOString(),
     });
-    saveLocalState(state);
+    await saveLocalState(state, { silencioso: true });
 
     await registrarAuditoria('sistema', 'BLOQUEIO_RATE_LIMIT', {
       chave,
@@ -704,14 +1020,7 @@ export async function registrarTentativaLogin(params: {
   if (state.tentativas_login.length > 1000) {
     state.tentativas_login = state.tentativas_login.slice(0, 1000);
   }
-  saveLocalState(state);
-
-  try {
-    const sb = getSupabaseServer();
-    await sb.from('tentativas_login').insert(row);
-  } catch {
-    // fallback silencioso
-  }
+  await saveLocalState(state, { silencioso: true });
 }
 
 /**

@@ -39,6 +39,9 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import {
   acquireVoteLock,
   buscarAlunoPorRa,
+  carregarEstado,
+  invalidarCacheAlunos,
+  supabaseAtivo,
   getLocalState,
   registrarAuditoria,
   registrarTentativaLogin,
@@ -93,6 +96,7 @@ export async function loginEleitorPorRa(raInput: string): Promise<{
     faixaEtaria: string;
   };
 }> {
+  await carregarEstado(true);
   const parsed = LoginEleitorSchema.safeParse({ ra: raInput });
   if (!parsed.success) {
     return {
@@ -231,6 +235,7 @@ export async function loginEleitorPorRa(raInput: string): Promise<{
 }
 
 export async function registrarBotaoNaoSouEuAction(ra: string): Promise<{ ok: boolean }> {
+  await carregarEstado();
   const raLimpo = normalizarRa(ra);
   await registrarAuditoria('urna', 'BOTAO_NAO_SOU_EU_ACIONADO', {
     ra_rejeitado_pelo_eleitor: raLimpo,
@@ -257,6 +262,7 @@ export async function registrarVotoEleitorAction(input: {
   protocolo?: string;
   registradoEm?: string;
 }> {
+  await carregarEstado(true);
   const parsed = RegistrarVotoSchema.safeParse(input);
   if (!parsed.success) {
     return {
@@ -333,8 +339,8 @@ export async function registrarVotoEleitorAction(input: {
     const serie = extrairSerieDaTurma(aluno.turma);
     const faixaEtaria = calcularFaixaEtaria(aluno.data_nascimento);
 
-    // Tenta executar a RPC atômica no Supabase se disponível
-    try {
+    // Produção (Supabase): a RPC atômica registrar_voto é a ÚNICA autoridade (falha fechada)
+    if (supabaseAtivo()) {
       const sb = getSupabaseServer();
       const { data: rpcData, error: rpcErr } = await sb.rpc('registrar_voto', {
         p_ra: aluno.ra,
@@ -345,16 +351,60 @@ export async function registrarVotoEleitorAction(input: {
         p_faixa_etaria: faixaEtaria,
       });
 
-      if (!rpcErr && rpcData && typeof rpcData === 'object' && 'error' in rpcData) {
-        const rpcObj = rpcData as { error?: string; code?: string };
-        if (rpcObj.code === 'JA_VOTOU') {
-          committed = true;
-          return { error: rpcObj.error || 'Este RA já votou.', code: 'JA_VOTOU' };
-        }
+      if (rpcErr || !rpcData || typeof rpcData !== 'object') {
+        return {
+          error:
+            'Não foi possível registrar o voto agora. Nada foi gravado; tente novamente ou chame o mesário.',
+          code: 'ERRO_SERVIDOR',
+        };
       }
-    } catch {
-      // Continua com gravação atômica local sincronizada
+
+      const rpcObj = rpcData as {
+        success?: boolean;
+        error?: string;
+        code?: string;
+        protocolo?: string;
+        registrado_em?: string;
+      };
+
+      if (!rpcObj.success) {
+        if (rpcObj.code === 'JA_VOTOU') committed = true;
+        return {
+          error: rpcObj.error || 'Voto não registrado.',
+          code: rpcObj.code || 'ERRO_SERVIDOR',
+        };
+      }
+
+      committed = true;
+      const protocoloDb = rpcObj.protocolo || protocolo;
+      const registradoDb = rpcObj.registrado_em || registradoEm;
+
+      // Atualiza o cache local desta instância (a próxima leitura recarrega do banco)
+      state.participacoes.push({
+        eleicao_id: eleicao.id,
+        ra: aluno.ra,
+        nome: aluno.nome,
+        turma: aluno.turma,
+        protocolo: protocoloDb,
+        created_at: registradoDb,
+      });
+      state.votos.push({
+        id: crypto.randomUUID(),
+        eleicao_id: eleicao.id,
+        chapa_id: chapaEscolhidaId,
+        tipo: votoBranco ? 'branco' : 'valido',
+        turma: aluno.turma,
+        serie,
+        raca,
+        genero,
+        faixa_etaria: faixaEtaria,
+      });
+
+      revalidatePath('/admin');
+      return { success: true, protocolo: protocoloDb, registradoEm: registradoDb };
     }
+
+    // Modo local (desenvolvimento/testes sem Supabase configurado)
 
     // Grava participação e voto anônimo na mesma transação lógica
     state.participacoes.push({
@@ -379,7 +429,7 @@ export async function registrarVotoEleitorAction(input: {
       faixa_etaria: faixaEtaria,
     });
 
-    saveLocalState(state);
+    await saveLocalState(state);
     committed = true;
 
     revalidatePath('/');
@@ -406,6 +456,7 @@ export async function loginAdminAction(password: string): Promise<{
   success?: boolean;
   error?: string;
 }> {
+  await carregarEstado();
   const parsed = AdminLoginSchema.safeParse({ password });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message || 'Senha inválida.' };
@@ -450,6 +501,7 @@ export async function loginAdminAction(password: string): Promise<{
 }
 
 export async function logoutAdminAction(): Promise<{ success: boolean }> {
+  await carregarEstado();
   await clearAdminSessionCookie();
   await registrarAuditoria('admin', 'LOGOUT_ADMIN', {});
   revalidatePath('/admin');
@@ -457,6 +509,7 @@ export async function logoutAdminAction(): Promise<{ success: boolean }> {
 }
 
 export async function obterDashboardPollingAction(eleicaoId?: string) {
+  await carregarEstado();
   await requireAdminSession();
   return obterDashboardAdminAgregado(eleicaoId);
 }
@@ -469,6 +522,7 @@ export async function buscarEleitoresAdminAction(params: {
   pagina?: number;
   porPagina?: number;
 }) {
+  await carregarEstado();
   await requireAdminSession();
   return consultarEleitoresPaginado(params);
 }
@@ -477,6 +531,7 @@ export async function buscarAlunoPorRaAdminAction(raInput: string): Promise<{
   encontrado: boolean;
   aluno?: AlunoRow;
 }> {
+  await carregarEstado();
   await requireAdminSession();
   const ra = normalizarRa(raInput);
   if (!ra) return { encontrado: false };
@@ -488,6 +543,7 @@ export async function buscarAlunoPorRaAdminAction(raInput: string): Promise<{
 export async function salvarChapaAdminAction(
   payload: unknown
 ): Promise<{ success?: boolean; error?: string; chapaId?: string }> {
+  await carregarEstado();
   await requireAdminSession();
 
   const parsed = SalvarChapaSchema.safeParse(payload);
@@ -569,6 +625,18 @@ export async function salvarChapaAdminAction(
   state.chapa_integrantes = state.chapa_integrantes.filter(
     (i) => i.chapa_id !== chapaId
   );
+  // Vincula integrantes a alunos existentes (FK); RA não encontrado vira nulo
+  const integrantesValidados = [];
+  for (const intg of data.integrantes) {
+    let raVinculado: string | null = null;
+    if (intg.aluno_ra && intg.aluno_ra.trim()) {
+      const alunoEnc = await buscarAlunoPorRa(normalizarRa(intg.aluno_ra));
+      raVinculado = alunoEnc ? alunoEnc.ra : null;
+    }
+    integrantesValidados.push({ ...intg, aluno_ra: raVinculado });
+  }
+
+  data.integrantes = integrantesValidados;
   data.integrantes.forEach((intg, index) => {
     state.chapa_integrantes.push({
       id: crypto.randomUUID(),
@@ -616,7 +684,7 @@ export async function salvarChapaAdminAction(
     }
   }
 
-  saveLocalState(state);
+  await saveLocalState(state);
   await registrarAuditoria('admin', data.id ? 'EDITAR_CHAPA' : 'CRIAR_CHAPA', {
     chapa_id: chapaId,
     nome: data.nome,
@@ -635,13 +703,14 @@ export async function alterarStatusChapaAdminAction(
   chapaId: string,
   novoStatus: StatusChapa
 ): Promise<{ success?: boolean; error?: string }> {
+  await carregarEstado();
   await requireAdminSession();
   const state = getLocalState();
   const chapa = state.chapas.find((c) => c.id === chapaId);
   if (!chapa) return { error: 'Chapa não encontrada.' };
 
   chapa.status = novoStatus;
-  saveLocalState(state);
+  await saveLocalState(state);
 
   await registrarAuditoria('admin', 'ALTERAR_STATUS_CHAPA', {
     chapa_id: chapaId,
@@ -661,6 +730,7 @@ export async function alterarStatusChapaAdminAction(
 export async function arquivarOuExcluirChapaAdminAction(
   chapaId: string
 ): Promise<{ success?: boolean; acaoRealizada?: 'arquivada' | 'excluida'; message?: string; error?: string }> {
+  await carregarEstado();
   await requireAdminSession();
   const state = getLocalState();
   const chapa = state.chapas.find((c) => c.id === chapaId);
@@ -669,7 +739,7 @@ export async function arquivarOuExcluirChapaAdminAction(
   const votosVinculados = state.votos.filter((v) => v.chapa_id === chapaId).length;
   if (votosVinculados > 0) {
     chapa.status = 'arquivada';
-    saveLocalState(state);
+    await saveLocalState(state);
     await registrarAuditoria('admin', 'ARQUIVAR_CHAPA_COM_VOTOS', {
       chapa_id: chapaId,
       nome: chapa.nome,
@@ -688,7 +758,7 @@ export async function arquivarOuExcluirChapaAdminAction(
   state.chapa_integrantes = state.chapa_integrantes.filter((i) => i.chapa_id !== chapaId);
   state.chapa_propostas = state.chapa_propostas.filter((p) => p.chapa_id !== chapaId);
   state.chapa_acessos = state.chapa_acessos.filter((a) => a.chapa_id !== chapaId);
-  saveLocalState(state);
+  await saveLocalState(state);
 
   await registrarAuditoria('admin', 'EXCLUIR_CHAPA_SEM_VOTOS', {
     chapa_id: chapaId,
@@ -710,6 +780,7 @@ export async function gerenciarCredencialChapaAdminAction(params: {
   novaSenha?: string;
   ativo: boolean;
 }): Promise<{ success?: boolean; error?: string }> {
+  await carregarEstado();
   await requireAdminSession();
   const state = getLocalState();
   const chapa = state.chapas.find((c) => c.id === params.chapaId);
@@ -749,7 +820,7 @@ export async function gerenciarCredencialChapaAdminAction(params: {
     });
   }
 
-  saveLocalState(state);
+  await saveLocalState(state);
   await registrarAuditoria('admin', 'GERENCIAR_CREDENCIAL_CHAPA', {
     chapa_id: params.chapaId,
     usuario: usuarioNorm,
@@ -773,6 +844,7 @@ export async function atualizarControleEleicaoAdminAction(payload: {
   desempate_justificativa?: string | null;
   confirmacaoDuasEtapas?: string;
 }): Promise<{ success?: boolean; error?: string }> {
+  await carregarEstado();
   await requireAdminSession();
 
   const parsed = ConfigurarEleicaoSchema.safeParse(payload);
@@ -805,7 +877,7 @@ export async function atualizarControleEleicaoAdminAction(payload: {
   eleicao.desempate_chapa_id = payload.desempate_chapa_id || null;
   eleicao.desempate_justificativa = payload.desempate_justificativa || null;
 
-  saveLocalState(state);
+  await saveLocalState(state);
   await registrarAuditoria('admin', 'ATUALIZAR_CONTROLE_ELEICAO', {
     eleicao_id: eleicao.id,
     status: eleicao.status,
@@ -829,6 +901,7 @@ export async function arquivarECriarNovaEleicaoAdminAction(params: {
   nomeNovaEleicao: string;
   confirmacaoTexto: string;
 }): Promise<{ success?: boolean; novaEleicaoId?: string; error?: string }> {
+  await carregarEstado();
   await requireAdminSession();
 
   if (params.confirmacaoTexto.trim().toUpperCase() !== 'ARQUIVAR E CRIAR NOVA') {
@@ -864,7 +937,7 @@ export async function arquivarECriarNovaEleicaoAdminAction(params: {
   };
 
   state.eleicoes.unshift(novaEleicao);
-  saveLocalState(state);
+  await saveLocalState(state);
 
   await registrarAuditoria('admin', 'ARQUIVAR_CICLO_E_CRIAR_NOVA_ELEICAO', {
     nova_eleicao_id: novaId,
@@ -880,6 +953,7 @@ export async function arquivarECriarNovaEleicaoAdminAction(params: {
 export async function importarAlunosLoteAdminAction(
   alunos: AlunoRow[]
 ): Promise<{ success?: boolean; importados?: number; error?: string }> {
+  await carregarEstado();
   await requireAdminSession();
 
   if (!Array.isArray(alunos) || alunos.length === 0) {
@@ -887,6 +961,24 @@ export async function importarAlunosLoteAdminAction(
   }
 
   const state = getLocalState();
+  // Produção: grava no Supabase e falha de forma visível
+  if (supabaseAtivo()) {
+    const sb = getSupabaseServer();
+    const BATCH = 500;
+    for (let i = 0; i < alunos.length; i += BATCH) {
+      const { error } = await sb
+        .from('alunos')
+        .upsert(alunos.slice(i, i + BATCH), { onConflict: 'ra' });
+      if (error) {
+        return { error: `Falha ao gravar alunos no Supabase: ${error.message}` };
+      }
+    }
+    invalidarCacheAlunos();
+    await registrarAuditoria('admin', 'IMPORTACAO_ALUNOS_LOTE', { quantidade: alunos.length });
+    revalidatePath('/admin');
+    return { success: true, importados: alunos.length };
+  }
+
   const mapExtras = new Map<string, AlunoRow>();
   for (const a of state.alunos_extras) {
     mapExtras.set(a.ra, a);
@@ -901,7 +993,7 @@ export async function importarAlunosLoteAdminAction(
   }
 
   state.alunos_extras = Array.from(mapExtras.values());
-  saveLocalState(state);
+  await saveLocalState(state);
 
   // Também tenta sincronizar em lotes no Supabase
   try {
@@ -925,6 +1017,7 @@ export async function importarAlunosLoteAdminAction(
 export async function salvarConfiguracaoEscolaAdminAction(
   payload: unknown
 ): Promise<{ success?: boolean; error?: string }> {
+  await carregarEstado();
   await requireAdminSession();
   const parsed = ConfiguracaoEscolaSchema.safeParse(payload);
   if (!parsed.success) {
@@ -949,7 +1042,7 @@ export async function salvarConfiguracaoEscolaAdminAction(
     updated_at: new Date().toISOString(),
   };
 
-  saveLocalState(state);
+  await saveLocalState(state);
   await registrarAuditoria('admin', 'ATUALIZAR_CONFIGURACOES_ESCOLA', {
     nome: d.nome,
     meta_participacao: d.meta_participacao,
@@ -964,6 +1057,7 @@ export async function salvarConfiguracaoEscolaAdminAction(
 export async function uploadArquivoChapaAdminAction(
   formData: FormData
 ): Promise<{ success?: boolean; url?: string; error?: string }> {
+  await carregarEstado();
   await requireAdminSession();
 
   const file = formData.get('file');
@@ -1006,8 +1100,16 @@ export async function uploadArquivoChapaAdminAction(
       const { data: pub } = sb.storage.from('chapas').getPublicUrl(pathStorage);
       return { success: true, url: pub.publicUrl };
     }
+    if (supabaseAtivo()) {
+      return {
+        error: `Falha no upload para o Storage: ${upErr.message}. Verifique se o bucket público "chapas" existe no Supabase.`,
+      };
+    }
   } catch {
-    // Fallback para Data URL se o bucket não estiver acessível
+    if (supabaseAtivo()) {
+      return { error: 'Falha de conexão com o Supabase Storage. Tente novamente.' };
+    }
+    // Fallback para Data URL somente em modo local
   }
 
   const buf = Buffer.from(await file.arrayBuffer());
@@ -1019,6 +1121,7 @@ export async function expurgarDadosCicloLgpdAdminAction(params: {
   eleicaoId: string;
   confirmacao: string;
 }): Promise<{ success?: boolean; error?: string }> {
+  await carregarEstado();
   await requireAdminSession();
 
   if (params.confirmacao.trim().toUpperCase() !== 'EXPURGAR DADOS LGPD') {
@@ -1034,9 +1137,16 @@ export async function expurgarDadosCicloLgpdAdminAction(params: {
   }
 
   const qtdRemovida = state.participacoes.filter((p) => p.eleicao_id === eleicao.id).length;
+  if (supabaseAtivo()) {
+    const { error: delErr } = await getSupabaseServer()
+      .from('participacoes')
+      .delete()
+      .eq('eleicao_id', eleicao.id);
+    if (delErr) return { error: `Falha ao expurgar no Supabase: ${delErr.message}` };
+  }
   state.participacoes = state.participacoes.filter((p) => p.eleicao_id !== eleicao.id);
   state.tentativas_login = [];
-  saveLocalState(state);
+  await saveLocalState(state);
 
   await registrarAuditoria('admin', 'EXPURGO_LGPD_FIM_DE_CICLO', {
     eleicao_id: eleicao.id,
@@ -1055,6 +1165,7 @@ export async function loginChapaAction(
   usuario: string,
   senha: string
 ): Promise<{ success?: boolean; error?: string }> {
+  await carregarEstado();
   const parsed = ChapaLoginSchema.safeParse({ usuario, senha });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message || 'Preencha usuário e senha.' };
@@ -1114,7 +1225,7 @@ export async function loginChapaAction(
   }
 
   acesso.ultimo_login = new Date().toISOString();
-  saveLocalState(state);
+  await saveLocalState(state);
 
   await registrarTentativaLogin({
     chave: `chapa:${usrNorm}:${ip}`,
@@ -1139,6 +1250,7 @@ export async function loginChapaAction(
 }
 
 export async function logoutChapaAction(): Promise<{ success: boolean }> {
+  await carregarEstado();
   const session = await getChapaSession();
   await clearChapaSessionCookie();
   if (session) {
@@ -1158,6 +1270,7 @@ export async function emitirCertificadoOficialAction(params: {
   certificado?: CertificadoRow;
   error?: string;
 }> {
+  await carregarEstado();
   const adminSession = await getAdminSession();
   const chapaSession = await getChapaSession();
 
@@ -1196,7 +1309,7 @@ export async function emitirCertificadoOficialAction(params: {
         : `Portal da Chapa (${chapa.nome})`,
     };
     state.certificados.push(cert);
-    saveLocalState(state);
+    await saveLocalState(state);
   }
 
   await registrarAuditoria(
@@ -1214,10 +1327,12 @@ export async function emitirCertificadoOficialAction(params: {
 }
 
 export async function obterDadosPublicosPollingAction() {
+  await carregarEstado();
   return obterDadosPublicosUrna();
 }
 
 export async function obterPortalChapaPollingAction() {
+  await carregarEstado();
   const session = await getChapaSession();
   if (!session) return null;
   return obterDadosPortalChapa(session.chapaId);

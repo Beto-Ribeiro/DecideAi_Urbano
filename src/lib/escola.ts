@@ -41,9 +41,9 @@ export const ESCOLA_DEFAULT: ConfiguracaoEscola = {
     'Sistema Oficial de Votação Eletrônica Auditável do Grêmio Estudantil da E.E. Engenheiro Urbano Alves de Souza Pereira.',
   metaParticipacao: 60,
   logos: {
-    escola: '/brand/logo-escola.jpg',
+    escola: '/brand/logo-escola.png',
     spEducacao: '/brand/logo-sp-educacao.png',
-    escolaPlaceholder: true,
+    escolaPlaceholder: false,
     spEducacaoPlaceholder: true,
   },
   assinaturas: {

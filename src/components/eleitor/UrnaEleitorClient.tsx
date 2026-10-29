@@ -40,6 +40,7 @@ import { EIXOS_PROPOSTAS, OPCOES_GENERO, OPCOES_RACA } from '@/lib/validations';
 import { baixarAdesivoEuVoteiPng } from '@/lib/pdf';
 import { SchoolCrest } from '@/components/SchoolCrest';
 import { CivicHeader, CivicFooter } from '@/components/CivicHeader';
+import { UrnaQuiosqueView } from './UrnaQuiosqueView';
 
 type EtapaEleitor = 'ra' | 'confirmar' | 'chapas' | 'urna' | 'sucesso';
 
@@ -364,6 +365,47 @@ export function UrnaEleitorClient({
     opcaoSelecionada && opcaoSelecionada !== 'BRANCO'
       ? chapasAprovadas.find((c) => c.id === opcaoSelecionada) || null
       : null;
+
+  if (modoQuiosque) {
+    return (
+      <UrnaQuiosqueView
+        dadosIniciais={dadosIniciais}
+        etapa={etapa}
+        setEtapa={setEtapa}
+        ra={ra}
+        setRa={setRa}
+        loading={loading}
+        erroMensagem={erroMensagem}
+        erroCodigo={erroCodigo}
+        votouAnteriormenteEm={votouAnteriormenteEm}
+        protocoloAnterior={protocoloAnterior}
+        aluno={aluno}
+        raca={raca}
+        setRaca={setRaca}
+        genero={genero}
+        setGenero={setGenero}
+        opcaoSelecionada={opcaoSelecionada}
+        setOpcaoSelecionada={setOpcaoSelecionada}
+        chapaSelecionadaObj={chapaSelecionadaObj}
+        modalConfirmacaoAberto={modalConfirmacaoAberto}
+        setModalConfirmacaoAberto={setModalConfirmacaoAberto}
+        protocoloGerado={protocoloGerado}
+        horarioVoto={horarioVoto}
+        contadorReset={contadorReset}
+        somAtivo={somAtivo}
+        setSomAtivo={setSomAtivo}
+        screensaverAtivo={screensaverAtivo}
+        setScreensaverAtivo={setScreensaverAtivo}
+        semConexao={semConexao}
+        reiniciarFluxoUrna={reiniciarFluxoUrna}
+        handleLoginRa={handleLoginRa}
+        handleNaoSouEu={handleNaoSouEu}
+        handleConfirmarIdentidade={handleConfirmarIdentidade}
+        handleAbrirModalConfirmacao={handleAbrirModalConfirmacao}
+        handleConfirmarVotoDefinitivo={handleConfirmarVotoDefinitivo}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8FF] dark:bg-slate-950 text-[#131B2E] dark:text-slate-100 font-sans">

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { ESCOLA_DEFAULT } from '@/lib/escola';
 import { obterEleicaoAtiva } from '@/server/queries';
+import { carregarEstado } from '@/server/store';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,6 +22,7 @@ export async function GET() {
     supabaseReachable = false;
   }
 
+  await carregarEstado();
   const eleicao = obterEleicaoAtiva();
 
   return NextResponse.json(

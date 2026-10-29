@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getAdminSession } from '@/lib/auth';
+import { carregarEstado } from '@/server/store';
 import {
   obterConfiguracaoEscolaAtual,
   obterDashboardAdminAgregado,
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminPage() {
+  await carregarEstado();
   const session = await getAdminSession();
   const escola = obterConfiguracaoEscolaAtual();
   const dados = session ? await obterDashboardAdminAgregado() : null;
