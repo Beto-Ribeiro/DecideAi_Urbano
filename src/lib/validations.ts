@@ -184,34 +184,17 @@ export function extrairSerieDaTurma(turma: string): string {
 }
 
 /**
- * Calcula o status efetivo da eleição em tempo real a cada requisição
- * (sem depender de cron, que no plano Vercel Hobby é apenas diário).
+ * Retorna o status da eleição sem encerramento automático por limite de tempo.
+ * A abertura e o encerramento são controlados manualmente pela Comissão Eleitoral.
  */
 export function calcularStatusEfetivoEleicao(
   eleicao: Pick<EleicaoRow, 'status' | 'abre_em' | 'encerra_em'>,
-  agora = new Date()
+  _agora = new Date()
 ): StatusEleicao {
-  if (eleicao.status === 'arquivada' || eleicao.status === 'encerrada' || eleicao.status === 'rascunho') {
-    return eleicao.status;
+  void _agora;
+  if (eleicao.status === 'agendada') {
+    return 'aberta';
   }
-
-  const nowMs = agora.getTime();
-  const abreMs = eleicao.abre_em ? new Date(eleicao.abre_em).getTime() : null;
-  const encerraMs = eleicao.encerra_em ? new Date(eleicao.encerra_em).getTime() : null;
-
-  if (encerraMs && !isNaN(encerraMs) && nowMs >= encerraMs) {
-    return 'encerrada';
-  }
-
-  if (abreMs && !isNaN(abreMs)) {
-    if (nowMs < abreMs) {
-      return 'agendada';
-    }
-    if (eleicao.status === 'agendada' && nowMs >= abreMs) {
-      return 'aberta';
-    }
-  }
-
   return eleicao.status;
 }
 

@@ -179,18 +179,8 @@ export function UrnaEleitorClient({
 
   useEffect(() => {
     if (!modoQuiosque) return;
-    let inactivityTimeout: ReturnType<typeof setTimeout>;
-
-    const resetInactivity = () => {
-      setScreensaverAtivo(false);
-      clearTimeout(inactivityTimeout);
-      if (etapa === 'ra') {
-        inactivityTimeout = setTimeout(() => setScreensaverAtivo(true), 45000);
-      }
-    };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      resetInactivity();
       if (
         e.key === 'F12' ||
         (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'i') ||
@@ -200,17 +190,11 @@ export function UrnaEleitorClient({
       }
     };
 
-    resetInactivity();
-    window.addEventListener('mousemove', resetInactivity);
-    window.addEventListener('touchstart', resetInactivity);
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      clearTimeout(inactivityTimeout);
-      window.removeEventListener('mousemove', resetInactivity);
-      window.removeEventListener('touchstart', resetInactivity);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [modoQuiosque, etapa]);
+  }, [modoQuiosque]);
 
   const tocarSomUrna = useCallback(() => {
     if (!somAtivo) return;

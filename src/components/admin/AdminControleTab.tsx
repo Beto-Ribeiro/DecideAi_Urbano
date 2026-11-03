@@ -30,12 +30,6 @@ export function AdminControleTab({ dados, onRefresh }: AdminControleTabProps) {
 
   const [nome, setNome] = useState(eleicaoAtual.nome);
   const [status, setStatus] = useState<StatusEleicao>(eleicaoAtual.status);
-  const [abreEm, setAbreEm] = useState(
-    eleicaoAtual.abre_em ? eleicaoAtual.abre_em.substring(0, 16) : ''
-  );
-  const [encerraEm, setEncerraEm] = useState(
-    eleicaoAtual.encerra_em ? eleicaoAtual.encerra_em.substring(0, 16) : ''
-  );
   const [resultadoPublicado, setResultadoPublicado] = useState(
     eleicaoAtual.resultado_publicado
   );
@@ -76,8 +70,8 @@ export function AdminControleTab({ dados, onRefresh }: AdminControleTabProps) {
         eleicaoId: eleicaoAtual.id,
         nome,
         status,
-        abre_em: abreEm ? new Date(abreEm).toISOString() : null,
-        encerra_em: encerraEm ? new Date(encerraEm).toISOString() : null,
+        abre_em: null,
+        encerra_em: null,
         resultado_publicado: resultadoPublicado,
         mostrar_parcial_para_chapas: mostrarParcial,
         desempate_chapa_id: desempateChapaId || null,
@@ -216,34 +210,9 @@ export function AdminControleTab({ dados, onRefresh }: AdminControleTabProps) {
               className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold"
             >
               <option value="rascunho">Rascunho (Em Preparação)</option>
-              <option value="agendada">Agendada (Aguardando Horário)</option>
-              <option value="aberta">Aberta (Recebendo Votos)</option>
+              <option value="aberta">Aberta (Recebendo Votos — Sem Limite de Tempo)</option>
               <option value="encerrada">Encerrada (Apuração Final)</option>
             </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold uppercase text-slate-600 dark:text-slate-300 mb-1.5">
-              Data/Hora de Abertura Automática (Opcional)
-            </label>
-            <input
-              type="datetime-local"
-              value={abreEm}
-              onChange={(e) => setAbreEm(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-mono"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold uppercase text-slate-600 dark:text-slate-300 mb-1.5">
-              Data/Hora de Encerramento Automático (Opcional)
-            </label>
-            <input
-              type="datetime-local"
-              value={encerraEm}
-              onChange={(e) => setEncerraEm(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-mono"
-            />
           </div>
         </div>
 

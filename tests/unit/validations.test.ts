@@ -75,7 +75,7 @@ describe('Regras de Voto, Apuração, Desempate, K-Anonimato e Janela Eleitoral'
     expect(req3Posterior).toBe(false);
   });
 
-  it('calcula janela de tempo da eleição em tempo real a cada requisição', () => {
+  it('mantém a eleição aberta sem limite de tempo automático até encerramento manual', () => {
     const agora = new Date('2026-10-29T12:00:00Z');
 
     expect(
@@ -98,18 +98,18 @@ describe('Regras de Voto, Apuração, Desempate, K-Anonimato e Janela Eleitoral'
         },
         agora
       )
-    ).toBe('encerrada');
+    ).toBe('aberta');
 
     expect(
       calcularStatusEfetivoEleicao(
         {
-          status: 'aberta',
-          abre_em: '2026-10-29T15:00:00Z',
-          encerra_em: '2026-10-29T20:00:00Z',
+          status: 'encerrada',
+          abre_em: null,
+          encerra_em: null,
         },
         agora
       )
-    ).toBe('agendada');
+    ).toBe('encerrada');
   });
 
   it('calcula apuração eleitoral, percentuais e detecta empate técnico e desempate', () => {

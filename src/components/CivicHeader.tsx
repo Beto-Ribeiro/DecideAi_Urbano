@@ -45,7 +45,7 @@ export function CivicHeader({
     if (typeof window === 'undefined') return false;
     return localStorage.getItem('decideai_theme') === 'dark';
   });
-  const [tempoRestante, setTempoRestante] = useState<string>('');
+  void encerraEm;
 
   useEffect(() => {
     if (darkMode) {
@@ -54,33 +54,6 @@ export function CivicHeader({
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
-
-  useEffect(() => {
-    if (!encerraEm || statusEleicao !== 'aberta') {
-      return;
-    }
-
-    const updateTimer = () => {
-      const diff = new Date(encerraEm).getTime() - Date.now();
-      if (diff <= 0) {
-        setTempoRestante('Encerrando...');
-        return;
-      }
-      const h = Math.floor(diff / (1000 * 60 * 60));
-      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const s = Math.floor((diff % (1000 * 60)) / 1000);
-      setTempoRestante(
-        `${String(h).padStart(2, '0')}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`
-      );
-    };
-
-    const initTimeout = setTimeout(updateTimer, 0);
-    const interval = setInterval(updateTimer, 1000);
-    return () => {
-      clearTimeout(initTimeout);
-      clearInterval(interval);
-    };
-  }, [encerraEm, statusEleicao]);
 
   const toggleTheme = () => {
     const next = !darkMode;
@@ -117,11 +90,6 @@ export function CivicHeader({
           <span className="text-slate-700 dark:text-slate-300 font-medium hidden sm:inline">
             • {badgeTexto || eleicaoNome}
           </span>
-          {tempoRestante && (
-            <span className="inline-flex items-center gap-1 bg-white dark:bg-slate-800 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded-full font-mono font-bold border border-blue-200 dark:border-slate-700">
-              <Clock className="w-3 h-3" /> {tempoRestante}
-            </span>
-          )}
         </div>
 
         <div className="flex items-center gap-3">
