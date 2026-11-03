@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Trophy,
   Download,
@@ -54,6 +55,15 @@ export function ResultadosPublicosClient({
   perfilDemografico,
   resultadoPublicado,
 }: ResultadosPublicosClientProps) {
+  const router = useRouter();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      router.refresh();
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [router]);
+
   const exportarPacotePropostas = () => {
     const pacote = {
       escola: escola.nomeCompleto,

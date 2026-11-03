@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import {
   loginEleitorPorRa,
+  obterDadosPublicosPollingAction,
   registrarBotaoNaoSouEuAction,
   registrarVotoEleitorAction,
 } from '@/server/actions';
@@ -53,7 +54,8 @@ export function UrnaEleitorClient({
   dadosIniciais,
   modoQuiosque = false,
 }: UrnaEleitorClientProps) {
-  const { escola, eleicao, statusEfetivo, chapasAprovadas, rankingTurmas } = dadosIniciais;
+  const [dadosPublicos, setDadosPublicos] = useState<DadosPublicosUrna>(dadosIniciais);
+  const { escola, eleicao, statusEfetivo, chapasAprovadas, rankingTurmas } = dadosPublicos;
 
   const [etapa, setEtapa] = useState<EtapaEleitor>('ra');
   const [ra, setRa] = useState('');
@@ -108,6 +110,15 @@ export function UrnaEleitorClient({
   const [semConexao, setSemConexao] = useState<boolean>(false);
   const [screensaverAtivo, setScreensaverAtivo] = useState<boolean>(false);
 
+  const atualizarDadosPublicos = useCallback(async () => {
+    try {
+      const atualizado = await obterDadosPublicosPollingAction();
+      if (atualizado) setDadosPublicos(atualizado);
+    } catch {
+      // ignora falha transitória de rede
+    }
+  }, []);
+
   const reiniciarFluxoUrna = useCallback(() => {
     setEtapa('ra');
     setRa('');
@@ -130,7 +141,17 @@ export function UrnaEleitorClient({
       }
       setChapaFavoritaId(null);
     }
-  }, [modoQuiosque]);
+    void atualizarDadosPublicos();
+  }, [modoQuiosque, atualizarDadosPublicos]);
+
+  // Atualizar dados públicos (comparecimento, chapas homologadas e status da eleição) quando na tela inicial
+  useEffect(() => {
+    if (etapa !== 'ra') return;
+    const interval = setInterval(() => {
+      void atualizarDadosPublicos();
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [etapa, atualizarDadosPublicos]);
 
   // Monitorar status de rede (offline/online)
   useEffect(() => {
@@ -350,6 +371,7 @@ export function UrnaEleitorClient({
         );
         setEtapa('sucesso');
         tocarSomUrna();
+        void atualizarDadosPublicos();
       }
     } catch {
       setModalConfirmacaoAberto(false);
@@ -369,7 +391,7 @@ export function UrnaEleitorClient({
   if (modoQuiosque) {
     return (
       <UrnaQuiosqueView
-        dadosIniciais={dadosIniciais}
+        dadosIniciais={dadosPublicos}
         etapa={etapa}
         setEtapa={setEtapa}
         ra={ra}
@@ -1277,9 +1299,6 @@ export function UrnaEleitorClient({
                           <div className="space-y-3">
                             {chapasAprovadas.map((chapa) => {
                               const selecionada = opcaoSelecionada === chapa.id;
-                              const pres = chapa.integrantes.find((i) =>
-                                i.cargo.toLowerCase().includes('pres')
-                              );
                               return (
                                 <button
                                   key={chapa.id}
@@ -1294,25 +1313,22 @@ export function UrnaEleitorClient({
                                 >
                                   <div className="flex items-center gap-3.5">
                                     <div
-                                      className="w-13 h-13 rounded-xl text-white font-black text-xl flex items-center justify-center shrink-0 shadow-xs"
+                                      className="w-13 h-13 rounded-xl text-white font-black text-xl flex items-center justify-center shrink-0 shadow-xs overflow-hidden"
                                       style={{ backgroundColor: chapa.cor }}
                                     >
-                                      {chapa.numero ?? 'CH'}
+                                      {chapa.logo_url ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                          src={chapa.logo_url}
+                                          alt={`Logo ${chapa.nome}`}
+                                          className="w-full h-full object-contain"
+                                        />
+                                      ) : (
+                                        chapa.nome.trim().charAt(0).toUpperCase()
+                                      )}
                                     </div>
-                                    <div>
-                                      <div className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                                        <span>{chapa.nome}</span>
-                                        {chapaFavoritaId === chapa.id && (
-                                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">
-                                            ★ Sua Favorita
-                                          </span>
-                                        )}
-                                      </div>
-                                      <div className="text-xs text-slate-600 dark:text-slate-400">
-                                        {pres
-                                          ? `Presidência: ${pres.nome} (${pres.turma})`
-                                          : chapa.slogan || 'Chapa Homologada'}
-                                      </div>
+                                    <div className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                                      <span>{chapa.nome}</span>
                                     </div>
                                   </div>
 

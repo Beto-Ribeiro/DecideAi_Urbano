@@ -20,6 +20,7 @@ interface AdminEleitoresTabProps {
   escola: ConfiguracaoEscola;
   eleicaoId: string;
   turmasDisponiveis: string[];
+  totalParticipacoes?: number;
 }
 
 interface EleitorItem {
@@ -38,6 +39,7 @@ export function AdminEleitoresTab({
   escola,
   eleicaoId,
   turmasDisponiveis,
+  totalParticipacoes,
 }: AdminEleitoresTabProps) {
   const [busca, setBusca] = useState('');
   const [turmaFiltro, setTurmaFiltro] = useState('todas');
@@ -50,8 +52,8 @@ export function AdminEleitoresTab({
   const [totalPaginas, setTotalPaginas] = useState(1);
 
   const carregarEleitores = useCallback(
-    async (pag: number) => {
-      setLoading(true);
+    async (pag: number, silencioso = false) => {
+      if (!silencioso) setLoading(true);
       try {
         const res = await buscarEleitoresAdminAction({
           eleicaoId,
@@ -66,7 +68,7 @@ export function AdminEleitoresTab({
         setTotalPaginas(res.totalPaginas);
         setPagina(res.paginaAtual);
       } finally {
-        setLoading(false);
+        if (!silencioso) setLoading(false);
       }
     },
     [eleicaoId, busca, turmaFiltro, statusFiltro]
@@ -78,6 +80,11 @@ export function AdminEleitoresTab({
     }, 200);
     return () => clearTimeout(timer);
   }, [carregarEleitores]);
+
+  useEffect(() => {
+    if (totalParticipacoes === undefined) return;
+    carregarEleitores(pagina, true);
+  }, [totalParticipacoes, pagina, carregarEleitores]);
 
   const exportarCsv = async () => {
     const res = await buscarEleitoresAdminAction({

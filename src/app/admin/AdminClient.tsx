@@ -217,6 +217,7 @@ export default function AdminClient({
             escola={dados.escola}
             eleicaoId={dados.eleicaoAtual.id}
             turmasDisponiveis={dados.turmasDisponiveis}
+            totalParticipacoes={dados.kpis.totalParticipacoes}
           />
         )}
 

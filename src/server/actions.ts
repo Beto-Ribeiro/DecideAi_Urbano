@@ -112,9 +112,9 @@ export async function loginEleitorPorRa(raInput: string): Promise<{
   const limitRaInexistente = await verificarRateLimit({
     chave: `inexistente:${ip}`,
     escopo: 'ra_inexistente_ip',
-    limiteTentativas: 6,
+    limiteTentativas: 40,
     janelaSegundos: 300,
-    bloqueioSegundos: 120,
+    bloqueioSegundos: 60,
   });
 
   if (!limitRaInexistente.permitido) {
@@ -400,7 +400,11 @@ export async function registrarVotoEleitorAction(input: {
         faixa_etaria: faixaEtaria,
       });
 
+      revalidatePath('/');
+      revalidatePath('/urna');
       revalidatePath('/admin');
+      revalidatePath('/chapa');
+      revalidatePath('/resultados');
       return { success: true, protocolo: protocoloDb, registradoEm: registradoDb };
     }
 
@@ -509,7 +513,7 @@ export async function logoutAdminAction(): Promise<{ success: boolean }> {
 }
 
 export async function obterDashboardPollingAction(eleicaoId?: string) {
-  await carregarEstado();
+  await carregarEstado(true);
   await requireAdminSession();
   return obterDashboardAdminAgregado(eleicaoId);
 }
@@ -522,7 +526,7 @@ export async function buscarEleitoresAdminAction(params: {
   pagina?: number;
   porPagina?: number;
 }) {
-  await carregarEstado();
+  await carregarEstado(true);
   await requireAdminSession();
   return consultarEleitoresPaginado(params);
 }
@@ -1327,12 +1331,12 @@ export async function emitirCertificadoOficialAction(params: {
 }
 
 export async function obterDadosPublicosPollingAction() {
-  await carregarEstado();
+  await carregarEstado(true);
   return obterDadosPublicosUrna();
 }
 
 export async function obterPortalChapaPollingAction() {
-  await carregarEstado();
+  await carregarEstado(true);
   const session = await getChapaSession();
   if (!session) return null;
   return obterDadosPortalChapa(session.chapaId);
