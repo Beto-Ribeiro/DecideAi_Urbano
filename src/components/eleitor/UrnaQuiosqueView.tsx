@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ShieldCheck,
   UserCheck,
@@ -104,11 +104,19 @@ export function UrnaQuiosqueView({
   handleConfirmarVotoDefinitivo,
 }: UrnaQuiosqueViewProps) {
   const { escola, eleicao, statusEfetivo, chapasAprovadas } = dadosIniciais;
+  const inputRaRef = useRef<HTMLInputElement | null>(null);
 
   // Estado para modal de saída do modo quiosque
   const [modalSairAberto, setModalSairAberto] = useState(false);
   const [senhaSair, setSenhaSair] = useState('');
   const [erroSair, setErroSair] = useState('');
+
+  // Ao voltar para a etapa 'ra', foca automaticamente o campo de RA para o próximo eleitor
+  useEffect(() => {
+    if (etapa === 'ra' && !screensaverAtivo && !modalSairAberto) {
+      inputRaRef.current?.focus();
+    }
+  }, [etapa, screensaverAtivo, modalSairAberto]);
 
   // Atalho de teclado para abrir o modal de saída com a tecla Escape
   useEffect(() => {
@@ -323,6 +331,7 @@ export function UrnaQuiosqueView({
                   {/* Visor do RA */}
                   <div className="relative">
                     <input
+                      ref={inputRaRef}
                       type="text"
                       inputMode="numeric"
                       value={ra}
@@ -627,7 +636,7 @@ export function UrnaQuiosqueView({
                         ? 'Nenhuma opção selecionada'
                         : opcaoSelecionada === 'BRANCO'
                         ? 'VOTO EM BRANCO'
-                        : `${chapaSelecionadaObj?.nome} (Nº ${chapaSelecionadaObj?.numero})`}
+                        : chapaSelecionadaObj?.nome}
                     </strong>
                   </div>
 
@@ -733,7 +742,7 @@ export function UrnaQuiosqueView({
               <div className="text-2xl font-black text-white">
                 {opcaoSelecionada === 'BRANCO'
                   ? 'VOTO EM BRANCO'
-                  : `${chapaSelecionadaObj?.nome} (Nº ${chapaSelecionadaObj?.numero})`}
+                  : chapaSelecionadaObj?.nome}
               </div>
             </div>
 

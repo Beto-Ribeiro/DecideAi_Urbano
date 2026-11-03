@@ -103,7 +103,7 @@ export function UrnaEleitorClient({
   // Etapa Sucesso
   const [protocoloGerado, setProtocoloGerado] = useState<string>('');
   const [horarioVoto, setHorarioVoto] = useState<string>('');
-  const [contadorReset, setContadorReset] = useState<number>(modoQuiosque ? 6 : 12);
+  const [contadorReset, setContadorReset] = useState<number>(modoQuiosque ? 3 : 8);
 
   // Áudio, conectividade e protetor de tela do quiosque
   const [somAtivo, setSomAtivo] = useState<boolean>(true);
@@ -132,7 +132,7 @@ export function UrnaEleitorClient({
     setOpcaoSelecionada(null);
     setModalConfirmacaoAberto(false);
     setProtocoloGerado('');
-    setContadorReset(modoQuiosque ? 6 : 12);
+    setContadorReset(modoQuiosque ? 3 : 8);
     if (modoQuiosque) {
       try {
         localStorage.removeItem('decideai_chapa_favorita');
@@ -244,19 +244,17 @@ export function UrnaEleitorClient({
   useEffect(() => {
     if (etapa !== 'sucesso') return;
 
-    const interval = setInterval(() => {
-      setContadorReset((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          reiniciarFluxoUrna();
-          return 0;
-        }
-        return prev - 1;
-      });
+    if (contadorReset <= 0) {
+      reiniciarFluxoUrna();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setContadorReset((prev) => prev - 1);
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [etapa, modoQuiosque, reiniciarFluxoUrna]);
+    return () => clearTimeout(timer);
+  }, [etapa, contadorReset, reiniciarFluxoUrna]);
 
   const toggleFavorita = (chapaId: string) => {
     const novo = chapaFavoritaId === chapaId ? null : chapaId;
@@ -369,6 +367,7 @@ export function UrnaEleitorClient({
         setHorarioVoto(
           new Date(res.registradoEm || Date.now()).toLocaleTimeString('pt-BR')
         );
+        setContadorReset(modoQuiosque ? 3 : 8);
         setEtapa('sucesso');
         tocarSomUrna();
         void atualizarDadosPublicos();
