@@ -339,19 +339,28 @@ export async function registrarVotoEleitorAction(input: {
     const serie = extrairSerieDaTurma(aluno.turma);
     const faixaEtaria = calcularFaixaEtaria(aluno.data_nascimento);
 
-    // Produção (Supabase): a RPC atômica registrar_voto é a ÚNICA autoridade (falha fechada)
+    // Produção (Supabase): gravação direta via service_role com PK (eleicao_id, ra) garantindo unicidade entre todos os PCs
     if (supabaseAtivo()) {
       const sb = getSupabaseServer();
-      const { data: rpcData, error: rpcErr } = await sb.rpc('registrar_voto', {
-        p_ra: aluno.ra,
-        p_chapa_id: chapaEscolhidaId,
-        p_voto_branco: Boolean(votoBranco),
-        p_raca: raca,
-        p_genero: genero,
-        p_faixa_etaria: faixaEtaria,
+
+      // 1. Insere participação (PK eleicao_id + ra bloqueia voto duplo mesmo concorrente entre vários PCs)
+      const { error: partErr } = await sb.from('participacoes').insert({
+        eleicao_id: eleicao.id,
+        ra: aluno.ra,
+        nome: aluno.nome,
+        turma: aluno.turma,
+        protocolo,
+        created_at: registradoEm,
       });
 
-      if (rpcErr || !rpcData || typeof rpcData !== 'object') {
+      if (partErr) {
+        if (partErr.code === '23505') {
+          committed = true;
+          return {
+            error: 'Este RA já registrou voto nesta eleição.',
+            code: 'JA_VOTOU',
+          };
+        }
         return {
           error:
             'Não foi possível registrar o voto agora. Nada foi gravado; tente novamente ou chame o mesário.',
@@ -359,25 +368,32 @@ export async function registrarVotoEleitorAction(input: {
         };
       }
 
-      const rpcObj = rpcData as {
-        success?: boolean;
-        error?: string;
-        code?: string;
-        protocolo?: string;
-        registrado_em?: string;
-      };
+      // 2. Insere voto 100% anônimo (sem RA, sem IP, sem User-Agent, sem timestamp)
+      const { error: votoErr } = await sb.from('votos').insert({
+        eleicao_id: eleicao.id,
+        chapa_id: chapaEscolhidaId,
+        tipo: votoBranco ? 'branco' : 'valido',
+        turma: aluno.turma,
+        serie,
+        raca: raca || 'Prefiro não informar',
+        genero: genero || 'Prefiro não informar',
+        faixa_etaria: faixaEtaria || 'Não informada',
+      });
 
-      if (!rpcObj.success) {
-        if (rpcObj.code === 'JA_VOTOU') committed = true;
+      if (votoErr) {
+        await sb
+          .from('participacoes')
+          .delete()
+          .eq('eleicao_id', eleicao.id)
+          .eq('ra', aluno.ra);
         return {
-          error: rpcObj.error || 'Voto não registrado.',
-          code: rpcObj.code || 'ERRO_SERVIDOR',
+          error:
+            'Não foi possível registrar o voto agora. Nada foi gravado; tente novamente ou chame o mesário.',
+          code: 'ERRO_SERVIDOR',
         };
       }
 
       committed = true;
-      const protocoloDb = rpcObj.protocolo || protocolo;
-      const registradoDb = rpcObj.registrado_em || registradoEm;
 
       // Atualiza o cache local desta instância (a próxima leitura recarrega do banco)
       state.participacoes.push({
@@ -385,8 +401,8 @@ export async function registrarVotoEleitorAction(input: {
         ra: aluno.ra,
         nome: aluno.nome,
         turma: aluno.turma,
-        protocolo: protocoloDb,
-        created_at: registradoDb,
+        protocolo,
+        created_at: registradoEm,
       });
       state.votos.push({
         id: crypto.randomUUID(),
@@ -405,7 +421,7 @@ export async function registrarVotoEleitorAction(input: {
       revalidatePath('/admin');
       revalidatePath('/chapa');
       revalidatePath('/resultados');
-      return { success: true, protocolo: protocoloDb, registradoEm: registradoDb };
+      return { success: true, protocolo, registradoEm };
     }
 
     // Modo local (desenvolvimento/testes sem Supabase configurado)

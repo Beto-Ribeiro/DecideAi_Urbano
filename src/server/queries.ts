@@ -54,7 +54,7 @@ export function obterEleicaoAtiva(): EleicaoRow {
 }
 
 export async function obterDadosPublicosUrna(): Promise<DadosPublicosUrna> {
-  await carregarEstado();
+  await carregarEstado(true);
   const state = getLocalState();
   const escola = obterConfiguracaoEscolaAtual();
   const eleicao = obterEleicaoAtiva();
@@ -161,7 +161,7 @@ export interface DashboardAdminAggregated {
 export async function obterDashboardAdminAgregado(
   eleicaoIdOpcional?: string
 ): Promise<DashboardAdminAggregated> {
-  await carregarEstado();
+  await carregarEstado(true);
   const state = getLocalState();
   const escola = obterConfiguracaoEscolaAtual();
 

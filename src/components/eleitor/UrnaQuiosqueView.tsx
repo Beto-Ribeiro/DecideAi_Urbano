@@ -537,6 +537,13 @@ export function UrnaQuiosqueView({
                     </h2>
                   </div>
 
+                  {erroMensagem && (
+                    <div className="p-2.5 rounded-xl bg-red-950/80 border border-red-800 text-red-200 text-xs font-semibold flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+                      <span>{erroMensagem}</span>
+                    </div>
+                  )}
+
                   {/* Grid de Opções de Voto */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
                     {chapasAprovadas.map((chapa) => {

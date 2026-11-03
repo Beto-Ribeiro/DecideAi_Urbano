@@ -345,7 +345,7 @@ BEGIN
 
     -- 4. Gerar protocolo de participação (NÃO tem qualquer relação com a chapa escolhida)
     v_protocolo := 'URB-' || EXTRACT(YEAR FROM v_now)::TEXT || '-' ||
-                   UPPER(SUBSTRING(encode(gen_random_bytes(6), 'hex') FROM 1 FOR 8));
+                   UPPER(SUBSTRING(md5(random()::text || clock_timestamp()::text || p_ra) FROM 1 FOR 8));
 
     -- 5. Inserir participação (PK eleicao_id + ra bloqueia voto duplo mesmo concorrente!)
     BEGIN
