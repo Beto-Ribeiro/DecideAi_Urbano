@@ -532,9 +532,6 @@ export function UrnaQuiosqueView({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
                     {chapasAprovadas.map((chapa) => {
                       const selecionada = opcaoSelecionada === chapa.id;
-                      const pres = chapa.integrantes.find((i) =>
-                        i.cargo.toLowerCase().includes('presid')
-                      );
                       return (
                         <button
                           key={chapa.id}
@@ -547,20 +544,24 @@ export function UrnaQuiosqueView({
                           }`}
                         >
                           <div className="flex items-center gap-3">
-                            <div
-                              className="w-12 h-12 rounded-xl text-white font-black text-xl flex items-center justify-center shrink-0 shadow-md"
-                              style={{ backgroundColor: chapa.cor || '#0037B0' }}
-                            >
-                              {chapa.numero ?? 'CH'}
-                            </div>
-                            <div className="leading-tight">
-                              <div className="text-sm sm:text-base font-extrabold text-white">
-                                {chapa.nome}
-                              </div>
-                              <div className="text-[11px] text-slate-400">
-                                {pres ? `Pres.: ${pres.nome}` : chapa.slogan || 'Chapa Aprovada'}
-                              </div>
-                            </div>
+                             <div
+                               className="w-12 h-12 rounded-xl text-white font-black text-xl flex items-center justify-center shrink-0 shadow-md overflow-hidden"
+                               style={{ backgroundColor: chapa.cor || '#0037B0' }}
+                             >
+                               {chapa.logo_url ? (
+                                 // eslint-disable-next-line @next/next/no-img-element
+                                 <img
+                                   src={chapa.logo_url}
+                                   alt={`Logo ${chapa.nome}`}
+                                   className="w-full h-full object-contain"
+                                 />
+                               ) : (
+                                 chapa.nome.trim().charAt(0).toUpperCase()
+                               )}
+                             </div>
+                             <div className="text-sm sm:text-base font-extrabold text-white leading-tight">
+                               {chapa.nome}
+                             </div>
                           </div>
 
                           <div
