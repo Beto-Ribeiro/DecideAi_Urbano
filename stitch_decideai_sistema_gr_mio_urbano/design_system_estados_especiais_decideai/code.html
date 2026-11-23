@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Merriweather:wght@400;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"on-background":"#131b2e","secondary-fixed":"#95f8a7","inverse-primary":"#b7c4ff","on-tertiary-container":"#ffcba3","inverse-surface":"#283044","on-secondary-fixed":"#00210a","surface-container-high":"#e2e7ff","surface-variant":"#dae2fd","secondary":"#006d30","tertiary-container":"#8d4b00","surface-container-lowest":"#ffffff","secondary-fixed-dim":"#79db8d","tertiary":"#6b3700","secondary-container":"#92f5a4","on-secondary-fixed-variant":"#005323","primary-fixed-dim":"#b7c4ff","inverse-on-surface":"#eef0ff","outline-variant":"#c4c5d7","surface-tint":"#2151da","surface-dim":"#d2d9f4","surface":"#faf8ff","surface-container-low":"#f2f3ff","on-tertiary":"#ffffff","tertiary-fixed":"#ffdcc3","on-error":"#ffffff","primary-container":"#1d4ed8","on-primary-container":"#cad3ff","on-tertiary-fixed-variant":"#6e3900","tertiary-fixed-dim":"#ffb77d","on-surface":"#131b2e","on-primary":"#ffffff","on-primary-fixed":"#001551","on-error-container":"#93000a","error":"#ba1a1a","primary":"#0037b0","outline":"#747686","surface-container-highest":"#dae2fd","background":"#faf8ff","on-secondary-container":"#007233","on-surface-variant":"#434655","surface-bright":"#faf8ff","on-tertiary-fixed":"#2f1500","primary-fixed":"#dce1ff","surface-container":"#eaedff","on-primary-fixed-variant":"#0039b5","on-secondary":"#ffffff","error-container":"#ffdad6"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-xs":"0.25rem","space-sm":"0.5rem","margin-sm":"1rem","margin":"2rem","gutter-sm":"1rem","space-md":"1rem","space-lg":"1.5rem","gutter":"1.5rem","space-xl":"2.5rem"},"fontFamily":{"label-sm":["Inter"],"headline-lg":["Plus Jakarta Sans"],"body-cert":["Merriweather"],"body-md":["Inter"],"body-sm":["Inter"],"headline-md":["Plus Jakarta Sans"],"title-official":["Merriweather"],"headline-lg-mobile":["Plus Jakarta Sans"],"display-hero-mobile":["Plus Jakarta Sans"],"body-lg":["Inter"],"label-action":["Plus Jakarta Sans"],"display-hero":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"]},"fontSize":{"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"600"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-cert":["15px",{"lineHeight":"26px","letterSpacing":"0em","fontWeight":"400"}],"body-md":["16px",{"lineHeight":"24px","letterSpacing":"0em","fontWeight":"400"}],"body-sm":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"400"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}],"title-official":["22px",{"lineHeight":"32px","letterSpacing":"0.01em","fontWeight":"700"}],"headline-lg-mobile":["26px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"700"}],"display-hero-mobile":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"800"}],"body-lg":["18px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"400"}],"label-action":["16px",{"lineHeight":"20px","letterSpacing":"0.02em","fontWeight":"700"}],"display-hero":["44px",{"lineHeight":"52px","letterSpacing":"-0.03em","fontWeight":"800"}],"headline-sm":["20px",{"lineHeight":"28px","letterSpacing":"0em","fontWeight":"600"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface"><header class="fixed top-0 w-full z-50 bg-surface/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="bg-surface-container-high py-space-xs px-margin-sm lg:px-margin flex items-center justify-between text-on-surface-variant"><div class="flex items-center gap-space-sm"><span class="flex h-2.5 w-2.5 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary"></span></span><span class="font-label-sm text-label-sm uppercase text-secondary font-bold tracking-wider">AO VIVO</span><span class="font-body-sm text-body-sm text-on-surface font-medium hidden sm:inline">• Eleição Grêmio 2025/2026 — Votação Aberta até 17h00</span></div><div class="flex items-center gap-space-md"><span class="font-label-sm text-label-sm text-on-surface-variant hidden md:inline">Ambiente Auditado E.E. Eng. Urbano Alves</span><button aria-label="Alternar modo visual" class="h-8 w-8 rounded-full flex items-center justify-center hover:bg-surface-container hover:text-on-surface text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[18px]">light_mode</span></button></div></div><div class="h-20 max-w-7xl mx-auto px-margin-sm lg:px-margin flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><div class="w-12 h-12 rounded-full bg-surface-container-lowest shadow-[inset_0px_1px_2px_rgba(0,0,0,0.04)] p-1 flex items-center justify-center"><img alt="Brasão Oficial E.E. Engenheiro Urbano Alves de Souza Pereira" class="w-9 h-9 rounded-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ_2r0SN-mwI097_BP71z_ZDYgDr3-I6acTZgkOPWbfL1lD51SWeRlf8SOXsEN1cOT7wAiaTsigrZLNpaRRH3NQY48MlMUziUBvZKuYxrGL6hRMWQqAcI6H9bhbmtLGZFETZHoeqGJpOEZ6Z5m4HomFBwfbyWgF0WwPQCu37zuOIgNG7L9DQ_K9CHEmtQU8zRfPp9s1Au_mXTaD_mu_FmTzmReID3YQhjV27MbBg"/></div><div class="flex flex-col justify-center"><div class="font-headline-sm text-headline-sm text-primary tracking-tight font-bold">E.E. Engenheiro Urbano Alves de Souza Pereira</div><div class="font-label-sm text-label-sm text-on-surface-variant">Sistema Oficial de Votação do Grêmio Estudantil • DecideAI</div></div></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-primary-container text-on-primary font-bold rounded-lg shadow-sm"><a class="px-space-md py-space-sm font-label-action text-label-action text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors rounded-lg" data-path="urna-fluxo-eleitor" href="#">Urna &amp; Fluxo do Eleitor</a><a class="px-space-md py-space-sm font-label-action text-label-action text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors rounded-lg" data-path="painel-administrativo" href="#">Painel Administrativo</a><a class="px-space-md py-space-sm font-label-action text-label-action text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors rounded-lg" data-path="portal-da-chapa" href="#">Portal da Chapa &amp; Certificados</a><a class="px-space-md py-space-sm font-label-action text-label-action text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors rounded-lg" data-path="design-system-componentes" href="#">Design System &amp; Estados</a></nav><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-sm bg-surface-container-low px-space-md py-1.5 rounded-full"><div class="text-right hidden sm:block"><div class="font-label-sm text-label-sm text-on-surface font-bold">Mesa Eleitoral</div><div class="text-[11px] text-secondary font-semibold">Auditoria Ativa</div></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ_2r0SN-mwI097_BP71z_ZDYgDr3-I6acTZgkOPWbfL1lD51SWeRlf8SOXsEN1cOT7wAiaTsigrZLNpaRRH3NQY48MlMUziUBvZKuYxrGL6hRMWQqAcI6H9bhbmtLGZFETZHoeqGJpOEZ6Z5m4HomFBwfbyWgF0WwPQCu37zuOIgNG7L9DQ_K9CHEmtQU8zRfPp9s1Au_mXTaD_mu_FmTzmReID3YQhjV27MbBg"/></div></div></div></header><main class="w-full pt-20 bg-surface min-h-[calc(100vh-140px)]"><div class="flex flex-col w-full">
+<!-- Sub-header Breadcrumb & Operational Mode Bar -->
+<section class="w-full bg-surface-container-low px-margin-sm lg:px-margin py-space-md">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="px-2.5 py-1 bg-primary text-on-primary rounded-md font-label-sm text-label-sm font-bold tracking-wider">DS-v2.6</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Design System, Componentes Cívicos &amp; Matriz de Estados de Exceção</span>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="font-label-sm text-label-sm text-secondary font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">verified</span> Em conformidade com ABNT/NBR 16537 &amp; WCAG 2.1 AA
+        </span>
+<button class="px-space-md py-1.5 bg-surface text-primary rounded-lg font-label-sm text-label-sm font-bold hover:bg-surface-container transition-colors shadow-sm" onclick="document.getElementById('state-explorer').scrollIntoView({behavior: 'smooth'})">
+          Ver Estados Especiais (7)
+        </button>
+</div>
+</div>
+</section>
+<div class="max-w-7xl mx-auto px-margin-sm lg:px-margin py-space-xl space-y-space-xl w-full">
+<!-- 1. IDENTIDADE VISUAL & TOKENS DE DESIGN -->
+<section class="space-y-space-lg">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-sm pb-space-sm">
+<div>
+<span class="text-primary font-label-sm text-label-sm uppercase tracking-widest font-bold">Módulo 01</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Identidade Visual &amp; Selo Oficial</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Tokens calibrados para inviolabilidade visual, legibilidade no sol do pátio escolar e proteção de contraste.</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-3 py-1 bg-surface-container-high text-on-surface font-label-sm text-label-sm rounded-full">Proporção 1:1 Inviolável</span>
+<span class="px-3 py-1 bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm rounded-full font-bold">Corujão Urbano Alves</span>
+</div>
+</div>
+<!-- Brasão Showcase Bento -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Brasão Fundo Claro -->
+<div class="lg:col-span-6 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between pb-space-md">
+<div>
+<span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">Aplicação Canônica</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Selo em Disco Neutro (Fundo Claro)</h3>
+</div>
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+</div>
+<div class="py-space-xl flex flex-col sm:flex-row items-center justify-center gap-space-lg bg-surface rounded-xl p-space-md">
+<!-- White circular containment disk -->
+<div class="w-36 h-36 rounded-full bg-surface-container-lowest shadow-md flex items-center justify-center p-3 relative group transition-transform hover:scale-105">
+<img alt="Brasão Oficial E.E. Engenheiro Urbano Alves de Souza Pereira" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ_2r0SN-mwI097_BP71z_ZDYgDr3-I6acTZgkOPWbfL1lD51SWeRlf8SOXsEN1cOT7wAiaTsigrZLNpaRRH3NQY48MlMUziUBvZKuYxrGL6hRMWQqAcI6H9bhbmtLGZFETZHoeqGJpOEZ6Z5m4HomFBwfbyWgF0WwPQCu37zuOIgNG7L9DQ_K9CHEmtQU8zRfPp9s1Au_mXTaD_mu_FmTzmReID3YQhjV27MbBg"/>
+</div>
+<div class="space-y-space-xs text-center sm:text-left">
+<div class="font-label-sm text-label-sm text-on-surface font-bold">Disco Refletivo de 144px</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-xs">Garante legibilidade inalterada do mascote Coruja da Sabedoria e dos ramos de louro em totens com brilho adaptativo.</p>
+<div class="pt-space-xs flex gap-2">
+<code class="px-2 py-0.5 bg-surface-container text-on-surface font-label-sm text-[11px] rounded">ratio: 1/1</code>
+<code class="px-2 py-0.5 bg-surface-container text-on-surface font-label-sm text-[11px] rounded">padding: 12px</code>
+</div>
+</div>
+</div>
+<div class="pt-space-md flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>Uso: Urna digital, comprovante impresso, telas de boas-vindas</span>
+<span class="text-secondary font-bold">Aprovado pelo Conselho</span>
+</div>
+</div>
+<!-- Brasão Fundo Escuro / Alto Contraste -->
+<div class="lg:col-span-6 bg-inverse-surface text-inverse-on-surface rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between pb-space-md">
+<div>
+<span class="text-inverse-primary font-label-sm text-label-sm uppercase font-bold tracking-wider">Modo Noturno / Auditório Escuro</span>
+<h3 class="font-headline-sm text-headline-sm text-inverse-on-surface">Selo com Blindagem de Luminância</h3>
+</div>
+<span class="px-2 py-1 bg-surface-variant text-on-surface font-label-sm text-[11px] rounded font-bold">Contraste 11.4:1</span>
+</div>
+<div class="py-space-xl flex flex-col sm:flex-row items-center justify-center gap-space-lg bg-on-background/60 rounded-xl p-space-md">
+<div class="w-36 h-36 rounded-full bg-surface-container-lowest shadow-xl flex items-center justify-center p-3 relative transition-transform hover:scale-105">
+<img alt="Brasão Oficial E.E. Engenheiro Urbano Alves de Souza Pereira em fundo escuro" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ_2r0SN-mwI097_BP71z_ZDYgDr3-I6acTZgkOPWbfL1lD51SWeRlf8SOXsEN1cOT7wAiaTsigrZLNpaRRH3NQY48MlMUziUBvZKuYxrGL6hRMWQqAcI6H9bhbmtLGZFETZHoeqGJpOEZ6Z5m4HomFBwfbyWgF0WwPQCu37zuOIgNG7L9DQ_K9CHEmtQU8zRfPp9s1Au_mXTaD_mu_FmTzmReID3YQhjV27MbBg"/>
+</div>
+<div class="space-y-space-xs text-center sm:text-left">
+<div class="font-label-sm text-label-sm text-inverse-on-surface font-bold">Preservação Cromática Estrita</div>
+<p class="font-body-sm text-body-sm text-inverse-on-surface/80 max-w-xs">O emblema jamais sofre inversão monocromática para não descaracterizar a bandeira da Escola Estadual.</p>
+<div class="pt-space-xs flex gap-2">
+<code class="px-2 py-0.5 bg-inverse-surface text-inverse-primary font-label-sm text-[11px] rounded">surface: #FFFFFF</code>
+<code class="px-2 py-0.5 bg-inverse-surface text-inverse-primary font-label-sm text-[11px] rounded">scrim: 60%</code>
+</div>
+</div>
+</div>
+<div class="pt-space-md flex items-center justify-between text-inverse-on-surface/70 font-label-sm text-label-sm">
+<span>Uso: Projeção de apuração ao vivo no auditório escolar</span>
+<span class="text-secondary-fixed font-bold">Anti-Reflexo Ativo</span>
+</div>
+</div>
+</div>
+<!-- Paleta Cromática Institucional & Tipografia -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Paleta de Cores -->
+<div class="lg:col-span-7 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Escala Cromática Cívica Oficial</h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">8 Tokens Principais</span>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm">
+<!-- Azul Primário -->
+<div class="rounded-lg p-space-sm bg-primary text-on-primary flex flex-col justify-between h-28 shadow-sm">
+<div class="font-label-sm text-label-sm font-bold">Azul Institucional</div>
+<div>
+<div class="font-headline-sm text-headline-sm leading-none font-bold">#0037B0</div>
+<div class="font-label-sm text-[11px] opacity-80">primary / Base Cívica</div>
+</div>
+</div>
+<!-- Azul Urna Botão -->
+<div class="rounded-lg p-space-sm bg-primary-container text-on-primary flex flex-col justify-between h-28 shadow-sm">
+<div class="font-label-sm text-label-sm font-bold">Azul Ação Urna</div>
+<div>
+<div class="font-headline-sm text-headline-sm leading-none font-bold">#1D4ED8</div>
+<div class="font-label-sm text-[11px] opacity-80">primary-container</div>
+</div>
+</div>
+<!-- Verde Confirma -->
+<div class="rounded-lg p-space-sm bg-secondary text-on-secondary flex flex-col justify-between h-28 shadow-sm">
+<div class="font-label-sm text-label-sm font-bold">Verde Confirma</div>
+<div>
+<div class="font-headline-sm text-headline-sm leading-none font-bold">#006D30</div>
+<div class="font-label-sm text-[11px] opacity-80">secondary / Voto OK</div>
+</div>
+</div>
+<!-- Verde Sucesso Suave -->
+<div class="rounded-lg p-space-sm bg-secondary-container text-on-secondary-container flex flex-col justify-between h-28 shadow-sm">
+<div class="font-label-sm text-label-sm font-bold">Verde Alerta Válido</div>
+<div>
+<div class="font-headline-sm text-headline-sm leading-none font-bold">#92F5A4</div>
+<div class="font-label-sm text-[11px] opacity-80">secondary-container</div>
+</div>
+</div>
+<!-- Âmbar Alerta / Corrige -->
+<div class="rounded-lg p-space-sm bg-tertiary-fixed text-on-tertiary-fixed flex flex-col justify-between h-28 shadow-sm">
+<div class="font-label-sm text-label-sm font-bold">Âmbar Corrige</div>
+<div>
+<div class="font-headline-sm text-headline-sm leading-none font-bold">#D97706</div>
+<div class="font-label-sm text-[11px] opacity-80">tertiary / Atenção</div>
+</div>
+</div>
+<!-- Chapa 1 Azul -->
+<div class="rounded-lg p-space-sm bg-surface-container-high text-primary flex flex-col justify-between h-28 shadow-sm">
+<div class="font-label-sm text-label-sm font-bold">Chapa 01 Voz Ativa</div>
+<div>
+<div class="font-headline-sm text-headline-sm leading-none font-bold">#2563EB</div>
+<div class="font-label-sm text-[11px] opacity-80">Tonal Elétrico</div>
+</div>
+</div>
+<!-- Chapa 2 Laranja -->
+<div class="rounded-lg p-space-sm bg-tertiary-container text-on-tertiary-container flex flex-col justify-between h-28 shadow-sm">
+<div class="font-label-sm text-label-sm font-bold">Chapa 02 Conexão</div>
+<div>
+<div class="font-headline-sm text-headline-sm leading-none font-bold">#EA580C</div>
+<div class="font-label-sm text-[11px] opacity-80">Tonal Energia</div>
+</div>
+</div>
+<!-- Chapa 3 Verde -->
+<div class="rounded-lg p-space-sm bg-secondary-fixed text-on-secondary-fixed flex flex-col justify-between h-28 shadow-sm">
+<div class="font-label-sm text-label-sm font-bold">Chapa 03 Evolução</div>
+<div>
+<div class="font-headline-sm text-headline-sm leading-none font-bold">#059669</div>
+<div class="font-label-sm text-[11px] opacity-80">Tonal Esperança</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Escala Tipográfica -->
+<div class="lg:col-span-5 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-md flex flex-col justify-between">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Escala Tipográfica Oficial</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Plus Jakarta Sans (UI) + Merriweather (Diplomas) + Monospace (Auditoria)</p>
+</div>
+<div class="space-y-space-sm">
+<div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
+<div>
+<div class="font-headline-lg text-headline-lg leading-tight text-on-surface font-extrabold">Eleição 2025</div>
+<span class="font-label-sm text-[11px] text-on-surface-variant">Plus Jakarta Sans • 32px / 40px (Bold)</span>
+</div>
+<span class="px-2 py-1 bg-surface text-primary font-label-sm text-[11px] rounded font-mono">headline-lg</span>
+</div>
+<div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
+<div>
+<div class="font-title-official text-title-official text-primary font-bold">Certificado Homologado</div>
+<span class="font-label-sm text-[11px] text-on-surface-variant">Merriweather Serif • 22px / 32px (Editorial)</span>
+</div>
+<span class="px-2 py-1 bg-surface text-primary font-label-sm text-[11px] rounded font-mono">title-official</span>
+</div>
+<div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
+<div>
+<div class="font-mono text-body-sm font-bold text-on-surface tracking-wider">RA 000.123.456-SP • HASH: 9B7F-A14E</div>
+<span class="font-label-sm text-[11px] text-on-surface-variant">Monospace tabular para auditoria eleitoral de integridade</span>
+</div>
+<span class="px-2 py-1 bg-surface text-primary font-label-sm text-[11px] rounded font-mono">mono-audit</span>
+</div>
+</div>
+<div class="text-[12px] text-on-surface-variant">
+            Rigor visual verificado: Sem quebra de linha em RAs com 9 dígitos + dígito verificador.
+          </div>
+</div>
+</div>
+</section>
+<!-- 2. CATÁLOGO DE COMPONENTES ATÔMICOS -->
+<section class="space-y-space-lg">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-sm pb-space-sm">
+<div>
+<span class="text-primary font-label-sm text-label-sm uppercase tracking-widest font-bold">Módulo 02</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Catálogo de Componentes Interativos</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Botões calibrados em mínimo de 48px, teclado virtual escolar e cards dinâmicos das chapas.</p>
+</div>
+<span class="px-3 py-1 bg-surface-container-high text-primary font-label-sm text-label-sm rounded-full font-bold">Alvo de Toque ≥ 48px Garantido</span>
+</div>
+<!-- Grid de Componentes: Botões Urna + Input Gigante + Teclado Numérico -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Coluna Esquerda: Botões Canônicos da Urna -->
+<div class="lg:col-span-5 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Botoeira Canônica da Urna</h3>
+<span class="material-symbols-outlined text-primary">touch_app</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Inspirada na ergonomia física da urna eletrônica brasileira com feedback sonoro simulado e elevação tátil.</p>
+<div class="space-y-space-sm pt-space-xs">
+<!-- CONFIRMA (Verde Gigante) -->
+<button class="w-full h-14 bg-secondary hover:bg-secondary/90 active:scale-[0.99] text-on-secondary rounded-lg font-label-action text-label-action uppercase tracking-wider flex items-center justify-between px-space-lg shadow-md transition-all">
+<span class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[24px]">check_circle</span>
+                CONFIRMA (VOTAR)
+              </span>
+<span class="font-mono text-label-sm bg-on-secondary/20 px-2 py-0.5 rounded">ALTURA 56px</span>
+</button>
+<!-- CORRIGE (Âmbar / Laranja) -->
+<div class="grid grid-cols-2 gap-space-sm">
+<button class="w-full h-12 bg-surface hover:bg-surface-container active:scale-[0.99] text-tertiary font-label-action text-label-action uppercase tracking-wide rounded-lg flex items-center justify-center gap-2 shadow-sm transition-all">
+<span class="material-symbols-outlined text-[20px] text-tertiary">restart_alt</span>
+                CORRIGE
+              </button>
+<!-- BRANCO (Neutro Cívico) -->
+<button class="w-full h-12 bg-surface-container-low hover:bg-surface-container active:scale-[0.99] text-on-surface font-label-action text-label-action uppercase tracking-wide rounded-lg flex items-center justify-center gap-2 shadow-sm transition-all">
+<span class="material-symbols-outlined text-[20px] text-outline">radio_button_unchecked</span>
+                BRANCO
+              </button>
+</div>
+<!-- Primário Institucional & Secundário -->
+<div class="pt-space-sm space-y-space-xs">
+<div class="font-label-sm text-label-sm text-on-surface-variant font-bold">Ações Administrativas &amp; Navegação</div>
+<div class="flex gap-space-sm">
+<button class="flex-1 h-12 bg-primary hover:bg-primary/90 text-on-primary rounded-lg font-label-action text-body-sm font-bold flex items-center justify-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">verified_user</span> Autenticar Mesa
+                </button>
+<button class="h-12 px-space-md bg-surface-container text-on-surface hover:bg-surface-container-high rounded-lg font-label-action text-body-sm font-bold flex items-center justify-center">
+                  Voltar
+                </button>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-lg text-body-sm text-on-surface-variant flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">volume_up</span>
+<span>Inclui acionamento de sintetizador de voz (áudio-descrição para alunos com baixa visão).</span>
+</div>
+</div>
+<!-- Coluna Direita: Input Gigante de RA + Teclado Numérico Virtual -->
+<div class="lg:col-span-7 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-label-sm text-label-sm text-primary uppercase font-bold">Entrada Direcionada</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Input de Registro do Aluno (RA) + Teclado</h3>
+</div>
+<span class="px-2.5 py-1 bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold rounded">Máscara Ativa</span>
+</div>
+<!-- Input Display Gigante -->
+<div class="space-y-space-xs">
+<label class="font-label-sm text-label-sm text-on-surface font-bold flex items-center justify-between" for="ra-demo-input">
+<span>DIGITE SEU NÚMERO DE RA (CARTEIRINHA)</span>
+<span class="text-primary font-normal">Exemplo: 000.123.456-9 / SP</span>
+</label>
+<div class="relative">
+<input class="w-full h-16 bg-surface-container-low text-primary font-mono text-headline-md px-space-lg rounded-xl tracking-widest font-bold shadow-inner flex items-center focus:outline-none" id="ra-demo-input" readonly="" type="text" value="000.842.195-7"/>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[24px]">check_circle</span>
+<span class="font-label-sm text-label-sm text-secondary font-bold hidden sm:inline">RA VÁLIDO</span>
+</div>
+</div>
+</div>
+<!-- Teclado Numérico Especializado para Totem Escolar -->
+<div class="bg-surface rounded-xl p-space-md space-y-space-sm">
+<div class="text-[12px] font-label-sm text-on-surface-variant font-bold flex justify-between">
+<span>TECLADO VIRTUAL DE ALTA ACESSIBILIDADE</span>
+<span>FEEDBACK HÁPTICO ATIVO</span>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<button class="h-12 bg-surface-container-lowest hover:bg-surface-container-high active:bg-primary-fixed text-on-surface font-headline-sm rounded-lg shadow-sm transition-all flex items-center justify-center font-bold">1</button>
+<button class="h-12 bg-surface-container-lowest hover:bg-surface-container-high active:bg-primary-fixed text-on-surface font-headline-sm rounded-lg shadow-sm transition-all flex items-center justify-center font-bold">2</button>
+<button class="h-12 bg-surface-container-lowest hover:bg-surface-container-high active:bg-primary-fixed text-on-surface font-headline-sm rounded-lg shadow-sm transition-all flex items-center justify-center font-bold">3</button>
+<button class="h-12 bg-surface-container-lowest hover:bg-surface-container-high active:bg-primary-fixed text-on-surface font-headline-sm rounded-lg shadow-sm transition-all flex items-center justify-center font-bold">4</button>
+<button class="h-12 bg-surface-container-lowest hover:bg-surface-container-high active:bg-primary-fixed text-on-surface font-headline-sm rounded-lg shadow-sm transition-all flex items-center justify-center font-bold">5</button>
+<button class="h-12 bg-surface-container-lowest hover:bg-surface-container-high active:bg-primary-fixed text-on-surface font-headline-sm rounded-lg shadow-sm transition-all flex items-center justify-center font-bold">6</button>
+<button class="h-12 bg-surface-container-lowest hover:bg-surface-container-high active:bg-primary-fixed text-on-surface font-headline-sm rounded-lg shadow-sm transition-all flex items-center justify-center font-bold">7</button>
+<button class="h-12 bg-surface-container-lowest hover:bg-surface-container-high active:bg-primary-fixed text-on-surface font-headline-sm rounded-lg shadow-sm transition-all flex items-center justify-center font-bold">8</button>
+<button class="h-12 bg-surface-container-lowest hover:bg-surface-container-high active:bg-primary-fixed text-on-surface font-headline-sm rounded-lg shadow-sm transition-all flex items-center justify-center font-bold">9</button>
+<button class="h-12 bg-surface-variant hover:bg-surface-container-high text-tertiary font-label-action rounded-lg shadow-sm transition-all flex items-center justify-center gap-1 font-bold text-sm">
+<span class="material-symbols-outlined text-[18px]">backspace</span> Limpar
+              </button>
+<button class="h-12 bg-surface-container-lowest hover:bg-surface-container-high active:bg-primary-fixed text-on-surface font-headline-sm rounded-lg shadow-sm transition-all flex items-center justify-center font-bold">0</button>
+<button class="h-12 bg-secondary text-on-secondary font-label-action rounded-lg shadow-sm transition-all flex items-center justify-center gap-1 font-bold text-sm">
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span> Entrar
+              </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Cards de Candidatura / Chapas com Selo de Deferimento -->
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Cards Oficiais de Chapas Deferidas</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Estados de seleção: Inativo, Hover e Selecionado com destaque na cor de campanha da chapa.</p>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-bold">Homologação nº 04/2025</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Chapa 01 - Voz Ativa (Estado Selecionado) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-md flex flex-col justify-between relative overflow-hidden transition-all duration-200">
+<div class="absolute top-0 left-0 w-full h-2 bg-primary"></div>
+<div class="space-y-space-sm pt-space-xs">
+<div class="flex items-start justify-between">
+<span class="w-12 h-12 rounded-lg bg-surface-container-high text-primary flex items-center justify-center font-headline-md font-extrabold shadow-sm">
+                  10
+                </span>
+<span class="px-2.5 py-1 bg-secondary-fixed text-on-secondary-fixed rounded-full font-label-sm text-[11px] font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span> DEFERIDA
+                </span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Chapa Voz Ativa Estudantil</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Liderança, melhorias na cantina, torneio interclasses e ampliação do grêmio no pátio.</p>
+</div>
+<div class="flex items-center gap-space-sm pt-space-xs">
+<img class="w-10 h-10 rounded-full object-cover shadow-sm" data-alt="Estudante presidente do grêmio escolar, menina brasileira de 16 anos sorrindo com uniforme da escola estadual em ambiente de biblioteca limpa e iluminada com luz suave e tons azuis." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3cRMBF-BLHbk788fzqyuKSEBO-1kPLR-oGwU8pFJfQ1XfWoYQfjdrUZyA91dSQanFy22BlTCdVN0HYg81652uXiXB061nQf9c_CIi_YGl6yVBZL9ikp74EElriOiKCxTkGiUBgtlEOP9C2-qV4N9wxrnu1URC4djSbWoDqyalsUTWjoKDe1Cq5W-6kCtsMrtNlo7-CRXEsVH6fQuuSL0r6ZWlWMR4ML7a1IWLCg"/>
+<div>
+<div class="font-label-sm text-label-sm font-bold text-on-surface">Mariana Souza (3º B)</div>
+<div class="text-[11px] text-on-surface-variant">Candidata a Presidente</div>
+</div>
+</div>
+</div>
+<div class="pt-space-md">
+<div class="w-full py-2 bg-primary text-on-primary rounded-lg font-label-action text-label-sm uppercase flex items-center justify-center gap-2 font-bold shadow-sm">
+<span class="material-symbols-outlined text-[18px]">check_box</span> SELECIONADA
+              </div>
+</div>
+</div>
+<!-- Chapa 02 - Conexão Urbano (Estado Repouso / Hover) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between relative overflow-hidden hover:shadow-md transition-all duration-200 group">
+<div class="absolute top-0 left-0 w-full h-2 bg-tertiary-container"></div>
+<div class="space-y-space-sm pt-space-xs">
+<div class="flex items-start justify-between">
+<span class="w-12 h-12 rounded-lg bg-tertiary-fixed text-tertiary-container flex items-center justify-center font-headline-md font-extrabold shadow-sm">
+                  20
+                </span>
+<span class="px-2.5 py-1 bg-secondary-fixed text-on-secondary-fixed rounded-full font-label-sm text-[11px] font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span> DEFERIDA
+                </span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Chapa Conexão Urbano</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Tecnologia, clube de robótica, cineclube às sextas e mutirão de renovação da horta escolar.</p>
+</div>
+<div class="flex items-center gap-space-sm pt-space-xs">
+<img class="w-10 h-10 rounded-full object-cover shadow-sm" data-alt="Jovem estudante do ensino médio brasileiro com camisa polo escolar polo preta e crachá do colégio, confiante e amigável em sala de aula de ciências bem iluminada." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_qCmUz4wbDP5f1ZGGpcwS8UEH3RO56t3tSfwIzYmUPFaiNo97wloeNKQYgmaL_Ra2nNJnB2BgpS7pH7KeQBGnQO_n0UrQU6jYT3tY-G9MVrFTrPcpS74onX5gpSrEnRC9IO-ZIJ1ic-K2ozyAXwMureEflZwEfdB3zBZ8rkS81KGu2q2U7AiqpbtS27i8ghz23Ro3hjd6FUBr6BuRWxgpgc3b5lvnmQn_4p9R_g"/>
+<div>
+<div class="font-label-sm text-label-sm font-bold text-on-surface">Lucas Fagundes (2º A)</div>
+<div class="text-[11px] text-on-surface-variant">Candidato a Presidente</div>
+</div>
+</div>
+</div>
+<div class="pt-space-md">
+<button class="w-full py-2 bg-surface-container hover:bg-tertiary-fixed text-on-surface rounded-lg font-label-action text-label-sm uppercase flex items-center justify-center gap-2 font-bold transition-colors">
+<span class="material-symbols-outlined text-[18px]">radio_button_unchecked</span> Votar Nesta Chapa
+              </button>
+</div>
+</div>
+<!-- Chapa 03 - Evolução Coletiva (Estado Neutro) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between relative overflow-hidden hover:shadow-md transition-all duration-200">
+<div class="absolute top-0 left-0 w-full h-2 bg-secondary"></div>
+<div class="space-y-space-sm pt-space-xs">
+<div class="flex items-start justify-between">
+<span class="w-12 h-12 rounded-lg bg-secondary-fixed text-secondary flex items-center justify-center font-headline-md font-extrabold shadow-sm">
+                  30
+                </span>
+<span class="px-2.5 py-1 bg-secondary-fixed text-on-secondary-fixed rounded-full font-label-sm text-[11px] font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span> DEFERIDA
+                </span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Chapa Evolução Coletiva</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Apoio a projetos de arte, grêmio aberto para sugestões semanais e melhoria dos bebedouros.</p>
+</div>
+<div class="flex items-center gap-space-sm pt-space-xs">
+<img class="w-10 h-10 rounded-full object-cover shadow-sm" data-alt="Estudante jovem brasileira segurando caderno escolar no pátio arborizado da escola pública, iluminação natural brilhante da manhã com sorriso empático e acolhedor." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCN2DYuqh2clKR_9vChUXwGBAnxmR0iRtrzoGWf77e4dGYeH6zEGEdl_SZ9HxJrUlly8-SwHGIW54NcqXaiVAAMXlSXr_a5zWZ_Kq6Ec8lOMnwxVqapj71qbU_m2j0y_GPsykTAnitnCCHYF5sLT6gizs_zRJ9rE_ERt3lU9jqOloZME2zgU-OTXKGdfjx7T9176jWDudyLbFFxm505HELf9ZwM-NZIqymGc0By_g"/>
+<div>
+<div class="font-label-sm text-label-sm font-bold text-on-surface">Beatriz Lima (3º C)</div>
+<div class="text-[11px] text-on-surface-variant">Candidata a Presidente</div>
+</div>
+</div>
+</div>
+<div class="pt-space-md">
+<button class="w-full py-2 bg-surface-container hover:bg-secondary-fixed text-on-surface rounded-lg font-label-action text-label-sm uppercase flex items-center justify-center gap-2 font-bold transition-colors">
+<span class="material-symbols-outlined text-[18px]">radio_button_unchecked</span> Votar Nesta Chapa
+              </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Data Visualizations: Gráficos de Quórum, Heatmap por Turma e Progress Bars -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Donut Chart de Quórum Oficial -->
+<div class="lg:col-span-4 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Quórum Eleitoral</h4>
+<span class="text-secondary font-label-sm text-label-sm font-bold">Meta: 50% + 1</span>
+</div>
+<div class="py-space-md flex flex-col items-center">
+<!-- Inline SVG Donut Chart (Total Votantes) -->
+<div class="relative w-44 h-44 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 100 100">
+<!-- Background Circle -->
+<circle class="text-surface-container-high" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-width="12"></circle>
+<!-- Quorum Reached Circle (78%) -->
+<circle class="text-secondary" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="55.26" stroke-linecap="round" stroke-width="12"></circle>
+</svg>
+<div class="absolute flex flex-col items-center text-center">
+<span class="font-display-hero text-headline-lg font-extrabold text-on-surface leading-none">78%</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant font-bold uppercase mt-1">Quórum Atingido</span>
+</div>
+</div>
+<div class="w-full grid grid-cols-2 gap-2 mt-4 text-center">
+<div class="bg-surface-container-low p-2 rounded-lg">
+<div class="font-headline-sm text-primary font-bold">894</div>
+<div class="font-label-sm text-[11px] text-on-surface-variant">Votos Depositados</div>
+</div>
+<div class="bg-surface-container-low p-2 rounded-lg">
+<div class="font-headline-sm text-on-surface font-bold">1.146</div>
+<div class="font-label-sm text-[11px] text-on-surface-variant">Alunos Aptos</div>
+</div>
+</div>
+</div>
+<div class="text-[12px] text-secondary font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check_circle</span> Eleição juridicamente válida com quórum superado.
+          </div>
+</div>
+<!-- Heatmap de Participação por Sala / Período -->
+<div class="lg:col-span-8 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-md">
+<div class="flex items-center justify-between">
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Heatmap de Engajamento por Bloco &amp; Sala</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Intensidade de votos confirmados na base de dados da escola.</p>
+</div>
+<div class="flex items-center gap-2 font-label-sm text-[11px]">
+<span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-surface-variant"></span> Baixo</span>
+<span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-secondary-fixed"></span> Médio</span>
+<span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-secondary"></span> Alto (≥85%)</span>
+</div>
+</div>
+<!-- Heatmap Matrix -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm pt-space-xs">
+<div class="p-space-sm bg-secondary text-on-secondary rounded-lg">
+<div class="font-label-sm text-[11px] font-mono opacity-80">SALA 01 • BLOCO A</div>
+<div class="font-headline-sm font-bold">96%</div>
+<div class="font-label-sm text-[11px]">3º Ano A - Matutino</div>
+</div>
+<div class="p-space-sm bg-secondary text-on-secondary rounded-lg">
+<div class="font-label-sm text-[11px] font-mono opacity-80">SALA 02 • BLOCO A</div>
+<div class="font-headline-sm font-bold">92%</div>
+<div class="font-label-sm text-[11px]">3º Ano B - Matutino</div>
+</div>
+<div class="p-space-sm bg-secondary-fixed text-on-secondary-fixed rounded-lg">
+<div class="font-label-sm text-[11px] font-mono opacity-80">SALA 03 • BLOCO A</div>
+<div class="font-headline-sm font-bold">81%</div>
+<div class="font-label-sm text-[11px]">2º Ano A - Matutino</div>
+</div>
+<div class="p-space-sm bg-secondary text-on-secondary rounded-lg">
+<div class="font-label-sm text-[11px] font-mono opacity-80">SALA 04 • BLOCO B</div>
+<div class="font-headline-sm font-bold">88%</div>
+<div class="font-label-sm text-[11px]">2º Ano B - Matutino</div>
+</div>
+<div class="p-space-sm bg-secondary-fixed text-on-secondary-fixed rounded-lg">
+<div class="font-label-sm text-[11px] font-mono opacity-80">SALA 05 • BLOCO B</div>
+<div class="font-headline-sm font-bold">74%</div>
+<div class="font-label-sm text-[11px]">1º Ano A - Vespertino</div>
+</div>
+<div class="p-space-sm bg-surface-variant text-on-surface rounded-lg">
+<div class="font-label-sm text-[11px] font-mono opacity-80">SALA 06 • BLOCO B</div>
+<div class="font-headline-sm font-bold">62%</div>
+<div class="font-label-sm text-[11px]">1º Ano B - Vespertino</div>
+</div>
+<div class="p-space-sm bg-secondary text-on-secondary rounded-lg">
+<div class="font-label-sm text-[11px] font-mono opacity-80">SALA 07 • LAB INFO</div>
+<div class="font-headline-sm font-bold">90%</div>
+<div class="font-label-sm text-[11px]">Ensino Técnico TI</div>
+</div>
+<div class="p-space-sm bg-secondary-fixed text-on-secondary-fixed rounded-lg">
+<div class="font-label-sm text-[11px] font-mono opacity-80">SALA 08 • BLOCO C</div>
+<div class="font-headline-sm font-bold">79%</div>
+<div class="font-label-sm text-[11px]">EJA - Noturno</div>
+</div>
+</div>
+<!-- Progress Bar Global -->
+<div class="space-y-1 pt-space-xs">
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Ritmo Médio de Votação por Hora</span>
+<span class="text-primary font-bold">142 alunos / hora</span>
+</div>
+<div class="w-full h-3 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 78%"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. ESTADOS ESPECIAIS & TRATAMENTO DE ERRO (7 CASOS CÍVICOS) -->
+<section class="space-y-space-lg" id="state-explorer">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-sm pb-space-sm">
+<div>
+<span class="text-tertiary font-label-sm text-label-sm uppercase tracking-widest font-bold">Módulo 03</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Matriz de Estados Especiais &amp; Tratamento Humanizado</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Comunicação clara, sem jargão técnico obscuro e com orientação concreta para cada situação atípica.</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-3 py-1 bg-surface-container-high text-on-surface font-label-sm text-label-sm rounded-full">7 Cenários Mapeados</span>
+<span class="px-3 py-1 bg-primary text-on-primary font-label-sm text-label-sm rounded-full font-bold">Auto-recuperáveis</span>
+</div>
+</div>
+<!-- Grid dos 7 Estados Didáticos -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- ESTADO 1: RA Não Encontrado -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between border-l-4 border-error space-y-space-md">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="w-10 h-10 rounded-full bg-error-container text-error flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">person_search</span>
+</span>
+<span class="font-label-sm text-[11px] bg-surface-container px-2 py-0.5 rounded text-on-surface-variant font-mono">ESTADO 01</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">RA Não Encontrado</h4>
+<div class="bg-surface-container-low p-space-md rounded-lg text-body-sm text-on-surface space-y-space-xs">
+<p class="font-medium text-error flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">info</span> Digitação Incorreta ou Cadastro Pendente
+              </p>
+<p class="text-on-surface-variant">
+                “Não localizamos esse RA. Verifique se digitou os 9 dígitos corretamente na sua carteirinha ou procure a secretaria no bloco B.”
+              </p>
+</div>
+</div>
+<div class="pt-space-sm space-y-2">
+<div class="flex items-center gap-2 text-label-sm text-[12px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary">check</span> Sugestão de correção em tela
+            </div>
+<button class="w-full py-2 bg-surface text-primary rounded-lg font-label-action text-label-sm hover:bg-surface-container font-bold transition-colors">
+              Tentar Novamente RA
+            </button>
+</div>
+</div>
+<!-- ESTADO 2: Aluno Inativo / Transferido -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between border-l-4 border-tertiary space-y-space-md">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="w-10 h-10 rounded-full bg-tertiary-fixed text-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">swap_horiz</span>
+</span>
+<span class="font-label-sm text-[11px] bg-surface-container px-2 py-0.5 rounded text-on-surface-variant font-mono">ESTADO 02</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Aluno Inativo / Transferido</h4>
+<div class="bg-surface-container-low p-space-md rounded-lg text-body-sm text-on-surface space-y-space-xs">
+<p class="font-medium text-tertiary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">school</span> Matrícula não consta no censo ativo
+              </p>
+<p class="text-on-surface-variant">
+                “Consta registro de transferência ou matrícula inativa no sistema SEDUC. Para regularizar seu voto cívico, procure a coordenação pedagógica com seu documento com foto.”
+              </p>
+</div>
+</div>
+<div class="pt-space-sm space-y-2">
+<div class="flex items-center gap-2 text-label-sm text-[12px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary">support_agent</span> Encaminhamento ao Bloco de Gestão
+            </div>
+<button class="w-full py-2 bg-surface text-tertiary rounded-lg font-label-action text-label-sm hover:bg-surface-container font-bold transition-colors">
+              Emitir Guia para Secretaria
+            </button>
+</div>
+</div>
+<!-- ESTADO 3: RA Já Votou -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between border-l-4 border-primary space-y-space-md">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="w-10 h-10 rounded-full bg-surface-container-high text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">how_to_vote</span>
+</span>
+<span class="font-label-sm text-[11px] bg-surface-container px-2 py-0.5 rounded text-on-surface-variant font-mono">ESTADO 03</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">RA Já Votou</h4>
+<div class="bg-surface-container-low p-space-md rounded-lg text-body-sm text-on-surface space-y-space-xs">
+<p class="font-medium text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">lock</span> Voto Único Já Auditado e Depositado
+              </p>
+<p class="text-on-surface-variant">
+                “Seu voto já foi computado nesta eleição hoje às 10:14. Cada estudante tem direito a um voto secreto. Caso acredite ser um engano, procure o mesário da urna imediatamente.”
+              </p>
+</div>
+</div>
+<div class="pt-space-sm space-y-2">
+<div class="flex items-center gap-2 text-label-sm text-[12px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary">fingerprint</span> Hash de auditoria gerado às 10:14:02
+            </div>
+<button class="w-full py-2 bg-surface text-primary rounded-lg font-label-action text-label-sm hover:bg-surface-container font-bold transition-colors">
+              Chamar Mesário de Apoio
+            </button>
+</div>
+</div>
+<!-- ESTADO 4: Eleição Encerrada -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between border-l-4 border-on-surface space-y-space-md">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="w-10 h-10 rounded-full bg-surface-container text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">lock_clock</span>
+</span>
+<span class="font-label-sm text-[11px] bg-surface-container px-2 py-0.5 rounded text-on-surface-variant font-mono">ESTADO 04</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Eleição Encerrada</h4>
+<div class="bg-surface-container-low p-space-md rounded-lg text-body-sm text-on-surface space-y-space-xs">
+<p class="font-medium text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">celebration</span> Apuração Oficial em Curso
+              </p>
+<p class="text-on-surface-variant">
+                “As urnas fecharam pontualmente às 17h00 conforme o edital nº 02/2025. Acompanhe a apuração ao vivo e a leitura do boletim no auditório da escola.”
+              </p>
+</div>
+</div>
+<div class="pt-space-sm space-y-2">
+<div class="flex items-center gap-2 text-label-sm text-[12px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary">broadcast_on_personal</span> Telão do auditório transmitindo
+            </div>
+<button class="w-full py-2 bg-primary text-on-primary rounded-lg font-label-action text-label-sm hover:bg-primary/90 font-bold shadow-sm transition-colors">
+              Ver Transmissão de Apuração
+            </button>
+</div>
+</div>
+<!-- ESTADO 5: Eleição Ainda Não Iniciada -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between border-l-4 border-secondary space-y-space-md">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="w-10 h-10 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">hourglass_top</span>
+</span>
+<span class="font-label-sm text-[11px] bg-surface-container px-2 py-0.5 rounded text-on-surface-variant font-mono">ESTADO 05</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Eleição Ainda Não Aberta</h4>
+<div class="bg-surface-container-low p-space-md rounded-lg text-body-sm text-on-surface space-y-space-xs">
+<p class="font-medium text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span> Cerimônia de Zerésima às 07h45
+              </p>
+<p class="text-on-surface-variant">
+                “A votação do Grêmio será aberta oficialmente às 08h00. Aguarde a validação do relatório de zerésima pelos fiscais das chapas inscritas.”
+              </p>
+</div>
+<!-- Contagem Regressiva Visual -->
+<div class="flex items-center justify-center gap-2 py-2 bg-surface rounded-lg">
+<div class="text-center"><span class="font-mono text-headline-sm font-bold text-primary">00</span><span class="text-[10px] block text-on-surface-variant">HORAS</span></div>
+<span class="font-mono text-headline-sm font-bold text-primary">:</span>
+<div class="text-center"><span class="font-mono text-headline-sm font-bold text-primary">24</span><span class="text-[10px] block text-on-surface-variant">MIN</span></div>
+<span class="font-mono text-headline-sm font-bold text-primary">:</span>
+<div class="text-center"><span class="font-mono text-headline-sm font-bold text-primary">12</span><span class="text-[10px] block text-on-surface-variant">SEG</span></div>
+</div>
+</div>
+<div class="pt-space-sm">
+<button class="w-full py-2 bg-surface text-secondary rounded-lg font-label-action text-label-sm hover:bg-surface-container font-bold transition-colors">
+              Ver Regulamento Eleitoral
+            </button>
+</div>
+</div>
+<!-- ESTADO 6: Sem Conexão com a Internet (Offline First) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between border-l-4 border-outline space-y-space-md">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">wifi_off</span>
+</span>
+<span class="font-label-sm text-[11px] bg-secondary-fixed text-on-secondary-fixed px-2 py-0.5 rounded font-bold font-mono">SEGURO</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Operação Local Offline</h4>
+<div class="bg-surface-container-low p-space-md rounded-lg text-body-sm text-on-surface space-y-space-xs">
+<p class="font-medium text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-secondary">security</span> Votação Continua Sem Interrupção
+              </p>
+<p class="text-on-surface-variant">
+                “Sem sinal momentâneo de rede na escola. Não se preocupe: seus dados e votos estão criptografados em cache blindado nesta urna e sincronizarão automaticamente.”
+              </p>
+</div>
+</div>
+<div class="pt-space-sm space-y-2">
+<div class="flex items-center justify-between text-label-sm text-[11px] text-on-surface-variant">
+<span>Fila local pendente:</span>
+<span class="font-mono font-bold text-secondary">3 votos seguros</span>
+</div>
+<button class="w-full py-2 bg-surface text-on-surface rounded-lg font-label-action text-label-sm hover:bg-surface-container font-bold transition-colors">
+              Checar Conectividade do Totem
+            </button>
+</div>
+</div>
+</div>
+<!-- ESTADO 7: Modo Quiosque / Totem do Pátio (Destaque Horizontal Amplo) -->
+<div class="bg-inverse-surface text-inverse-on-surface rounded-xl p-space-lg shadow-md space-y-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="w-12 h-12 rounded-xl bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[24px]">desktop_windows</span>
+</span>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-[11px] bg-primary text-on-primary px-2 py-0.5 rounded font-mono font-bold">ESTADO 07 • HARDENING</span>
+<span class="text-secondary-fixed font-label-sm text-[11px] font-bold">Ativo em 4 Totens</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-inverse-on-surface">Modo Quiosque Blindado &amp; Proteção de Tela do Pátio</h3>
+</div>
+</div>
+<button class="px-space-md py-2 bg-primary-container text-on-primary hover:bg-primary rounded-lg font-label-action text-label-sm font-bold flex items-center gap-2 shadow-sm transition-all" onclick="toggleKioskDemo()">
+<span class="material-symbols-outlined text-[18px]">play_circle</span> Simular Tela Cheia do Pátio
+          </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter pt-space-xs">
+<div class="bg-on-background/40 p-space-md rounded-lg space-y-space-xs">
+<div class="font-label-sm text-label-sm text-inverse-primary font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">keyboard_lock</span> Bloqueio de Atalhos de Teclado
+            </div>
+<p class="font-body-sm text-body-sm text-inverse-on-surface/80">
+              Desabilita F1-F12, Alt+Tab, Ctrl+W, Ctrl+Shift+I e toque prolongado para impedir saída indevida do navegador pelo estudante.
+            </p>
+</div>
+<div class="bg-on-background/40 p-space-md rounded-lg space-y-space-xs">
+<div class="font-label-sm text-label-sm text-secondary-fixed font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">timer</span> Reinício Instantâneo em 3s
+            </div>
+<p class="font-body-sm text-body-sm text-inverse-on-surface/80">
+              Após a confirmação com o sinal acústico oficial, o totem exibe o selo de comprovante por 3 segundos e apaga os dados de sessão imediatamente.
+            </p>
+</div>
+<div class="bg-on-background/40 p-space-md rounded-lg space-y-space-xs">
+<div class="font-label-sm text-label-sm text-on-tertiary-container font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">screen_lock_portrait</span> Screensaver Educativo
+            </div>
+<p class="font-body-sm text-body-sm text-inverse-on-surface/80">
+              Em caso de inatividade por 45 segundos, exibe animação suave da coruja convidando os alunos da fila a tocar na tela para votar.
+            </p>
+</div>
+</div>
+<div class="hidden bg-on-background p-space-lg rounded-xl text-center space-y-space-md animate-fade-in" id="kiosk-demo-box">
+<div class="w-20 h-20 mx-auto rounded-full bg-surface-container-lowest p-2 flex items-center justify-center shadow-lg">
+<img alt="Logo E.E. Engenheiro Urbano Alves de Souza Pereira" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ_2r0SN-mwI097_BP71z_ZDYgDr3-I6acTZgkOPWbfL1lD51SWeRlf8SOXsEN1cOT7wAiaTsigrZLNpaRRH3NQY48MlMUziUBvZKuYxrGL6hRMWQqAcI6H9bhbmtLGZFETZHoeqGJpOEZ6Z5m4HomFBwfbyWgF0WwPQCu37zuOIgNG7L9DQ_K9CHEmtQU8zRfPp9s1Au_mXTaD_mu_FmTzmReID3YQhjV27MbBg"/>
+</div>
+<div class="space-y-1">
+<h4 class="font-headline-lg text-headline-lg text-inverse-on-surface">Urna Pronta para Votação</h4>
+<p class="font-body-md text-body-md text-inverse-on-surface/70">Toque em qualquer lugar da tela com sua carteirinha em mãos.</p>
+</div>
+<div>
+<button class="px-space-xl py-3 bg-secondary text-on-secondary rounded-full font-label-action text-label-action font-extrabold shadow-lg hover:scale-105 transition-transform uppercase tracking-wider" onclick="toggleKioskDemo()">
+              INICIAR MEU VOTO
+            </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Rodapé Técnico com Manifesto de Acessibilidade -->
+<section class="bg-surface-container-low rounded-xl p-space-lg flex flex-col md:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center p-1 shadow-sm">
+<img alt="Emblema de Auditoria" class="w-9 h-9 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ_2r0SN-mwI097_BP71z_ZDYgDr3-I6acTZgkOPWbfL1lD51SWeRlf8SOXsEN1cOT7wAiaTsigrZLNpaRRH3NQY48MlMUziUBvZKuYxrGL6hRMWQqAcI6H9bhbmtLGZFETZHoeqGJpOEZ6Z5m4HomFBwfbyWgF0WwPQCu37zuOIgNG7L9DQ_K9CHEmtQU8zRfPp9s1Au_mXTaD_mu_FmTzmReID3YQhjV27MbBg"/>
+</div>
+<div>
+<div class="font-label-sm text-label-sm font-bold text-on-surface">Comissão Eleitoral Discente 2025/2026</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Design System construído exclusivamente para o ambiente da E.E. Engenheiro Urbano Alves de Souza Pereira.</p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm text-on-surface-variant font-label-sm text-label-sm">
+<span class="px-3 py-1.5 bg-surface rounded-lg font-mono">Build 2025.10.14-PROD</span>
+<button class="h-9 px-3 bg-surface hover:bg-surface-container rounded-lg flex items-center gap-1 font-bold text-primary transition-colors" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+<span class="material-symbols-outlined text-[16px]">arrow_upward</span> Topo
+        </button>
+</div>
+</section>
+</div>
+</div>
+<script>
+  function toggleKioskDemo() {
+    const box = document.getElementById('kiosk-demo-box');
+    if (box) {
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+      } else {
+        box.classList.add('hidden');
+      }
+    }
+  }
+</script></main><footer class="w-full bg-surface-container-low py-space-lg shadow-[0_-1px_8px_rgba(0,0,0,0.03)]"><div class="max-w-7xl mx-auto px-margin-sm lg:px-margin flex flex-col md:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-sm text-secondary"><span class="material-symbols-outlined text-[20px]">verified_user</span><span class="font-label-sm text-label-sm font-bold text-on-surface">Garantia de Voto Secreto • Art. 14 CF/88 • Total Anonimato dos Votos</span></div><div class="font-body-sm text-body-sm text-on-surface-variant text-center md:text-right">© 2025/2026 DecideAI • E.E. Engenheiro Urbano Alves de Souza Pereira • Comissão Eleitoral Estudantil</div></div></footer></body></html>
